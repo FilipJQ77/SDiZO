@@ -2,18 +2,29 @@
 
 using namespace std;
 
+/**
+ * Klasa reprezentująca tablicę
+ */
 class Array {
 
-    int *array;
-    unsigned int arraySize;
+    int *array; // wskaźnik na pierwszy element tablicy
+    unsigned int arraySize; //długość tablicy
 
 public:
 
+    /**
+     * stworzenie nowej, pustej tablicy
+     */
     Array() {
         array = new int[0];
         arraySize = 0;
     }
 
+    /**
+     * stworzenie nowej tablicy na podstawie danych liczb
+     * @param arrayGiven wskaźnik na początek danej tablicy liczb
+     * @param arraySizeGiven rozmiar danej tablicy liczb
+     */
     Array(int *arrayGiven, int arraySizeGiven) {
         array = new int[arraySizeGiven];
         arraySize = arraySizeGiven;
@@ -22,6 +33,17 @@ public:
         }
     }
 
+    /**
+     * destruktor
+     */
+    ~Array() {
+        delete[] array;
+    }
+
+    /**
+     * dodanie nowej liczby na początek tablicy
+     * @param number
+     */
     void addFront(int number) {
         ++arraySize;
         int *newArray = new int[arraySize];
@@ -33,6 +55,10 @@ public:
         array = newArray;
     }
 
+    /**
+     * dodanie nowej liczby na koniec tablicy
+     * @param number
+     */
     void addBack(int number) {
         int *newArray = new int[arraySize + 1];
         for (unsigned int i = 0; i < arraySize; ++i) {
@@ -44,6 +70,11 @@ public:
         array = newArray;
     }
 
+    /**
+     * dodanie nowej liczby w dowolne miejsce tablicy, jeśli dany indeks jest poprawny tzn. w przedziale [0, rozmiar tablicy]; rozmiar tablicy jest poprawnym indeksem ponieważ oznacza to że liczba ma być dodana na koniec tablicy
+     * @param number
+     * @param position indeks
+     */
     void addAnywhere(int number, unsigned int position) {
         if (position <= arraySize) {
             ++arraySize;
@@ -62,6 +93,9 @@ public:
         }
     }
 
+    /**
+     * usuwanie pierwszej liczby z tablicy, jeśli istnieje
+     */
     void removeFront() {
         if (arraySize > 0) {
             --arraySize;
@@ -74,6 +108,9 @@ public:
         }
     }
 
+    /**
+     * usuwanie ostatniej liczby z tablicy, jeśli istnieje
+     */
     void removeBack() {
         if (arraySize > 0) {
             --arraySize;
@@ -86,6 +123,10 @@ public:
         }
     }
 
+    /**
+     * usuwanie liczby z dowolnego miejsca w tablicy, jeśli dany indeks jest poprawny - przedział [0, rozmiar tablicy)
+     * @param position
+     */
     void removeAnywhere(unsigned int position) {
         if (position < arraySize) {
             --arraySize;
@@ -102,38 +143,74 @@ public:
         }
     }
 
-    //TODO adding pop methods
+    /**
+     * usuwanie podanej liczby z tablicy, jeśli jest kilka przypadków wystąpienia takiej liczby usunięte zostaje jedynie pierwsze wystąpienie
+     * @param number
+     * @return true jeśli znaleziono i usunięto liczbę, false jeśli nie znaleziono liczby
+     */
+    bool removeGivenNumber(int number) {
+        for (unsigned int i = 0; i < arraySize; ++i) {
+            if (array[i] == number) {
+                removeAnywhere(i);
+                return true;
+            }
+        }
+        return false;
+    }
 
+    /**
+     * wydobycie z tablicy liczby o danym indeksie, jeśli indeks jest poprawny - [0, rozmiar tablicy); w przeciwnym wypadku wyrzucenie wyjątku
+     * @param position
+     * @return
+     */
     int getNumberAt(unsigned int position) {
         if (position < arraySize)
             return array[position];
-        return 0;
+        else throw invalid_argument("Podany indeks jest niepoprawny");
     }
 
+
+    /**
+     * getter tablicy
+     * @return
+     */
     int *getArray() {
         return array;
     }
 
+    /**
+     * getter rozmiaru tablicy
+     * @return
+     */
     unsigned int getArraySize() {
         return arraySize;
     }
 
+    /**
+     * pokazanie tablicy w konsoli
+     */
     void printArray() {
-        cout << "Size:" << arraySize << " | ";
+        cout << "Tablica o rozmiarze: " << arraySize << endl;
         for (unsigned int i = 0; i < arraySize; ++i) {
-            cout << array[i] << ",";
+            cout << array[i] << ", ";
         }
         cout << endl;
     }
 };
 
+/**
+ * Klasa reprezentująca listę dwukierunkową
+ */
 class DoublyLinkedList {
 
+    /**
+     * Pomocnicza klasa reprezentująca pojedynczy element listy
+     */
     class ListElement {
     public:
-        int value;
-        ListElement *prev;
-        ListElement *next;
+        int value; //wartość elementu
+        ListElement *prev; //wskaźnik na poprzedni element
+        ListElement *next; //wskaźnik na następny element
 
         ListElement(int val) {
             value = val;
@@ -148,18 +225,46 @@ class DoublyLinkedList {
         }
     };
 
-    ListElement *head;
-    ListElement *tail;
-    unsigned int listSize;
+    ListElement *head; //głowa - pierwszy element listy
+    ListElement *tail; //ogon - ostatni element listy
+    unsigned int listSize; // długość listy
 
 public:
 
+    /**
+     * stworzenie nowej pustej listy
+     */
     DoublyLinkedList() {
         head = nullptr;
         tail = nullptr;
         listSize = 0;
     }
 
+    /**
+     * stworzenie nowej listy na podstawie danej tablicy liczb
+     * @param array wskaźnik na pierwszy element tablicy
+     * @param arraySize długość tablicy
+     */
+    DoublyLinkedList(int *array, unsigned int arraySize) : DoublyLinkedList() { //delegacja podstawowego konstruktora
+        for (unsigned int i = 0; i < arraySize; ++i) {
+            addBack(array[i]);
+        }
+    }
+
+    /**
+     * destruktor
+     */
+    ~DoublyLinkedList() {
+        ListElement *temp;
+        while (head != nullptr) {
+            removeFront(); //aby zdealokować pamięć po wszystkich elementach
+        }
+    }
+
+    /**
+     * dodanie nowej liczby na początek listy
+     * @param number
+     */
     void addFront(int number) {
         ++listSize;
         ListElement *newElement = new ListElement(number, nullptr, head);
@@ -170,6 +275,10 @@ public:
         head = newElement;
     }
 
+    /**
+     * dodanie nowej liczby na koniec listy
+     * @param number
+     */
     void addBack(int number) {
         ++listSize;
         ListElement *newElement = new ListElement(number, tail, nullptr);
@@ -181,7 +290,7 @@ public:
     }
 
     /**
-     *
+     * dodanie nowej liczby w dowolne miejsce listy, jeśli podany indeks jest poprawny - przedział [0, rozmiar listy]
      * @param number
      * @param position indeks od 0, jak w tablicy
      */
@@ -208,6 +317,9 @@ public:
         }
     }
 
+    /**
+     * usuwanie elementu z początku listy, jeśli istnieje
+     */
     void removeFront() {
         if (head != nullptr) {
             --listSize;
@@ -219,6 +331,9 @@ public:
         }
     }
 
+    /**
+     * usuwanie elementu z końca listy, jeśli istnieje
+     */
     void removeBack() {
         if (tail != nullptr) {
             --listSize;
@@ -230,11 +345,12 @@ public:
         }
     }
 
+    /**
+     * usuwanie liczby na danej pozycji, jeśli indeks jest poprawny
+     * @param position
+     */
     void removeAnywhere(unsigned int position) {
-        //todo
-    }
-
-    int findNumberAt(unsigned int position) {
+        //TODO test
         if (position <= listSize) {
             ListElement *temp;
             if (position < listSize / 2) {
@@ -250,21 +366,64 @@ public:
                     temp = temp->prev;
                 }
             }
-            return temp->value;
+            --listSize;
+            ListElement *left = temp->prev;
+            ListElement *right = temp->next;
+            delete temp;
+            left->next = right;
+            right->prev = left;
         }
-        return 0;
     }
 
-    //TODO add pop methods?
+    /**
+     * usunięcie podanej liczby, jeśli udało się taką znaleźć
+     * @param number
+     */
+    void removeGivenNumber(int number) {
+        ListElement *temp = head;
+        
+    }
+
+    /**
+     * wydobycie liczby o danym indeksie z listy, jeśli indeks jest niepoprawny funkcja wyrzuci wyjątek
+     * @param position
+     * @return
+     */
+    int getNumberAt(unsigned int position) {
+        if (position <= listSize) {
+            ListElement *temp;
+            /**
+             * ponieważ mamy dostęp i do głowy i do ogona, możemy wybrać od której strony iść do liczby by szybciej na nią trafić
+             */
+            if (position < listSize / 2) {
+                temp = head;
+                unsigned int i = 0;
+                for (; i < position; ++i) {
+                    temp = temp->next;
+                }
+            } else {
+                temp = tail;
+                unsigned int i = listSize - 1;
+                for (; i > position; --i) {
+                    temp = temp->prev;
+                }
+            }
+            return temp->value;
+        } else throw invalid_argument("Podany indeks jest niepoprawny");
+    }
 
     ListElement *getHead() {
         return head;
     }
 
+    ListElement *getTail() {
+        return tail;
+    }
+
     void printList() {
         ListElement *temp = head;
         while (temp != nullptr) {
-            cout << temp->value << ",";
+            cout << temp->value << ", ";
             temp = temp->next;
         }
         cout << endl;
@@ -291,102 +450,13 @@ public:
 
 };
 
-bool test() {
-    Array *a = new Array();
-    if (a->getArraySize() != 0) return false;
-    a->addAnywhere(1, -1);
-    if (a->getArraySize() != 0) return false;
-    a->addAnywhere(1, 1);
-    if (a->getArraySize() != 0) return false;
-    a->addAnywhere(1, 0);
-    if (a->getArraySize() != 1) return false;
-    a->removeAnywhere(-1);
-    a->removeAnywhere(1);
-    if (a->getArraySize() != 1) return false;
-    a->removeAnywhere(0);
-    if (a->getArraySize() != 0) return false;
-    a->removeFront();
-    a->removeBack();
-    a->removeAnywhere(-1);
-    a->removeAnywhere(0);
-    a->removeAnywhere(1);
-    if (a->getArraySize() != 0) return false;
-    a->addFront(1);
-    if (a->getArraySize() != 1) return false;
-    if (a->getNumberAt(0) != 1) return false;
-    a->removeFront();
-    if (a->getArraySize() != 0) return false;
-    a->addBack(1);
-    if (a->getArraySize() != 1) return false;
-    if (a->getNumberAt(0) != 1) return false;
-    a->removeBack();
-    if (a->getArraySize() != 0) return false;
-    a->addFront(2);
-    a->addFront(1);
-    a->addFront(0);
-    if (a->getArraySize() != 3) return false;
-    if (a->getNumberAt(0) != 0 && a->getNumberAt(1) != 1 && a->getNumberAt(2) != 2) return false;
-    a->addBack(3);
-    a->addBack(4);
-    a->addBack(5);
-    if (a->getArraySize() != 6) return false;
-    if (a->getNumberAt(3) != 3 && a->getNumberAt(4) != 4 && a->getNumberAt(5) != 5) return false;
-    a->addAnywhere(6, 5);
-    a->addAnywhere(7, 7);
-    if (a->getNumberAt(5) != 6 && a->getNumberAt(6) != 5 && a->getNumberAt(7) != 7) return false;
-    a->removeAnywhere(7);
-    a->printArray();
-    if (a->getArraySize() != 7) return false;
-    a->removeAnywhere(5);
-    a->printArray();
-    if (a->getArraySize() != 6) return false;
-    return true;
-    /*int tab[] = {1, 2, 3, 4, 5};
-    Array x(tab, 5);
-    x.addBack(6);
-    x.printArray();
-    x.removeBack();
-    x.printArray();
-    x.addFront(0);
-    x.printArray();
-    x.removeFront();
-    x.printArray();
-    x.addAnywhere(7, 1);
-    x.printArray();
-    x.removeAnywhere(1);
-    x.printArray();
-    x.addAnywhere(7, 1);
-    cout << x.findNumberAt(1);
-    cout << x.findNumberAt(0);
-    cout << x.getNumberAt(-1);
-    DoublyLinkedList list;
-    list.addFront(3);
-    list.printList();
-    list.addFront(2);
-    list.printList();
-    list.addFront(1);
-    list.printList();
-    list.addBack(4);
-    list.printList();
-    list.removeFront();
-    list.printList();
-    list.removeBack();
-    list.printList();
-    list.removeBack();
-    list.printList();
-    list.removeBack();
-    list.printList();
-    list.removeBack();
-    list.printList();
-    list.removeFront();
-    list.printList();*/
-}
-
 int main() {
-    DoublyLinkedList *list = new DoublyLinkedList();
-    for (int i = 0; i < 9; ++i) {
-        list->addBack(i);
-    }
-    list->addAnywhere(11, 4);
+//    DoublyLinkedList *list = new DoublyLinkedList();
+//    for (int i = 0; i < 9; ++i) {
+//        list->addBack(i);
+//    }
+//    list->addAnywhere(11, 4);
+    int tab[] = {1, 2, 3, 4, 5};
+    DoublyLinkedList *list = new DoublyLinkedList(tab, 5);
     return 0;
 }
