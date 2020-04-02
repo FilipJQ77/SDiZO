@@ -139,7 +139,8 @@ public:
                     newArray[j] = array[j];
                 }
                 //zamiana usuwanego elementu z ostatnim liściem, korzenia nie wstawiamy na koniec bo i tak jest usuwany
-                newArray[i] = array[heapSize];
+                if (heapSize)
+                    newArray[i] = array[heapSize];
                 for (unsigned int j = i + 1; j < heapSize; ++j) {
                     newArray[j] = array[j];
                 }
@@ -155,7 +156,7 @@ public:
      * @return
      */
     bool heapTest() {
-        unsigned int i = heapSize - 1;
+        int i = heapSize - 1;
         for (; i > 0; --i) {
             unsigned int parentIndex = (i - 1) / 2;
             if (array[i] > array[parentIndex]) {

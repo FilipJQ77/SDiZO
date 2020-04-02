@@ -68,7 +68,7 @@ int main() {
 //    a->add(1);
 //    a->add(5);
 //    a->print();
-    int tab[] = {1, 3, 4, 7, 19, 18, 16, 10, 8, 2, 5, 20, 17, 15, 11, 6, 9, 12, 14, 13};
+    /*int tab[] = {1, 3, 4, 7, 19, 18, 16, 10, 8, 2, 5, 20, 17, 15, 11, 6, 9, 12, 14, 13};
     BinaryHeapMax *heap = new BinaryHeapMax(tab, 20);
     heap->print();
     if (heap->heapTest())
@@ -86,6 +86,25 @@ int main() {
     if (heap->heapTest())
         cout << "Yeet"<<endl;
     heap->removeGivenNumber(17);
+    heap->print();
+    if (heap->heapTest())
+        cout << "Yeet"<<endl;*/
+    BinaryHeapMax *heap=new BinaryHeapMax();
+    heap->removeGivenNumber(0);
+    heap->print();
+    if (heap->heapTest())
+        cout << "Yeet"<<endl;
+    heap->add(1);
+    heap->removeGivenNumber(1);
+    heap->print();
+    if (heap->heapTest())
+        cout << "Yeet"<<endl;
+    heap->add(1);
+    heap->add(2);
+    heap->print();
+    if (heap->heapTest())
+        cout << "Yeet"<<endl;
+    heap->removeGivenNumber(2);
     heap->print();
     if (heap->heapTest())
         cout << "Yeet"<<endl;
