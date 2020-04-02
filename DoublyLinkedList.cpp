@@ -16,13 +16,7 @@ class DoublyLinkedList {
         ListElement *prev; //wskaźnik na poprzedni element
         ListElement *next; //wskaźnik na następny element
 
-        ListElement(int val) {
-            value = val;
-            prev = nullptr;
-            next = nullptr;
-        }
-
-        ListElement(int val, ListElement *p, ListElement *n) {
+        explicit ListElement(int val, ListElement *p = nullptr, ListElement *n = nullptr) {
             value = val;
             prev = p;
             next = n;
@@ -126,7 +120,8 @@ public:
      * usuwanie elementu z początku listy, jeśli istnieje
      */
     void removeFront() {
-        if (head != nullptr) {
+        //jeśli są co najmniej 2 elementy
+        if (head != tail) {
             --listSize;
             ListElement *newHead = head->next;
             if (newHead != nullptr)
@@ -134,19 +129,30 @@ public:
             delete head;
             head = newHead;
         }
+        //jeśli jest najwyżej 1 element
+        else {
+            head = tail = nullptr;
+            listSize = 0;
+        }
     }
 
     /**
      * usuwanie elementu z końca listy, jeśli istnieje
      */
     void removeBack() {
-        if (tail != nullptr) {
+        //jeśli są co najmniej 2 elementy
+        if (tail != head) {
             --listSize;
             ListElement *newTail = tail->prev;
             if (newTail != nullptr)
                 newTail->next = nullptr;
             delete tail;
             tail = newTail;
+        }
+        //jeśli jest najwyżej 1 element
+        else {
+            head = tail = nullptr;
+            listSize = 0;
         }
     }
 
@@ -170,8 +176,11 @@ public:
      * @param index
      */
     void removeAnywhere(unsigned int index) {
-        //TODO test
-        if (index <= listSize) {
+        if (index == 0)
+            removeFront();
+        else if (index == listSize - 1)
+            removeBack();
+        else if (index < listSize - 1) {
             ListElement *temp;
             if (index < listSize / 2) {
                 temp = head;

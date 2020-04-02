@@ -1,7 +1,5 @@
 #include<iostream>
 
-using namespace std;
-
 /**
  * Klasa reprezentująca tablicę
  */
@@ -13,19 +11,11 @@ class Array {
 public:
 
     /**
-     * stworzenie nowej, pustej tablicy
-     */
-    Array() {
-        array = new int[0];
-        arraySize = 0;
-    }
-
-    /**
-     * stworzenie nowej tablicy na podstawie danych liczb
+     * stworzenie nowej tablicy, pustej lub na podstawie danych liczb
      * @param arrayGiven wskaźnik na początek danej tablicy liczb
      * @param arraySizeGiven rozmiar danej tablicy liczb
      */
-    Array(int *arrayGiven, int arraySizeGiven) {
+    Array(int *arrayGiven = nullptr, int arraySizeGiven = 0) {
         array = new int[arraySizeGiven];
         arraySize = arraySizeGiven;
         for (unsigned int i = 0; i < arraySize; ++i) {
@@ -73,7 +63,7 @@ public:
     /**
      * dodanie nowej liczby w dowolne miejsce tablicy, jeśli dany indeks jest poprawny tzn. w przedziale [0, rozmiar tablicy]; rozmiar tablicy jest poprawnym indeksem ponieważ oznacza to że liczba ma być dodana na koniec tablicy
      * @param number
-     * @param index indeks
+     * @param index
      */
     void addAnywhere(int number, unsigned int index) {
         if (index <= arraySize) {

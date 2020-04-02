@@ -10,6 +10,12 @@ class BinaryHeapMax {
 
 public:
 
+    //TODO pomyśleć nad lepszą implementacją
+    string cr = "  ";
+    string cl = "  ";
+    string cp = "  ";
+
+
     /**
      * stworzenie nowego pustego kopca
      */
@@ -25,11 +31,15 @@ public:
      */
     BinaryHeapMax(int *arrayGiven, int arraySizeGiven) {
         heapSize = arraySizeGiven;
-        arrayGiven = new int[arraySizeGiven];
+        array = new int[arraySizeGiven];
         for (unsigned int i = 0; i < arraySizeGiven; ++i) {
             array[i] = arrayGiven[i];
         }
-        //todo algorytm
+        unsigned int i = 1 + (heapSize - 2) / 2;
+        do {
+            --i;
+            heapifyDown(i);
+        } while (i);
     }
 
     /**
@@ -140,7 +150,10 @@ public:
         }
     }
 
-    //todo tylko test, lepiej potem usunąć/zakomentarzować
+    /**
+     * test sprawdzający poprawność własności kopca
+     * @return
+     */
     bool heapTest() {
         unsigned int i = heapSize - 1;
         for (; i > 0; --i) {
@@ -154,9 +167,14 @@ public:
 
     /**
      * wyświetla kopiec w konsoli, metoda ze strony https://eduinf.waw.pl/inf/alg/001_search/0112.php
-     * todo naprawić
      */
     void print() {
+        //ustawienie stringów odpowiedzialnych za wyświetlanie gałęzi drzewa
+        cr[0] = 218;
+        cr[1] = 196;
+        cl[0] = 192;
+        cl[1] = 196;
+        cp[0] = 179;
         printRecursive("", "", 0);
     }
 
@@ -169,16 +187,15 @@ public:
     void printRecursive(string sp, string sn, unsigned int index) {
         if (index < heapSize) {
             string s = sp; //"tekst do wyświetlenia w wierszach pośrednich dla synów"
-            if (sn == "┌─")
+            if (sn == cr)
                 s[s.length() - 2] = ' ';
-            string aa="┌─";
-            printRecursive(s + "| ", "┌─", 2 * index + 2);
+            printRecursive(s + cp, cr, 2 * index + 2);
             s = s.substr(0, sp.length() - 2);
             cout << s << sn << array[index] << endl;
             s = sp;
-            if (sn == "└─")
+            if (sn == cl)
                 s[s.length() - 2] = ' ';
-            printRecursive(s + "| ", "└─", 2 * index + 1);
+            printRecursive(s + cp, cl, 2 * index + 1);
         }
     }
 };

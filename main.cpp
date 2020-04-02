@@ -6,6 +6,7 @@
 #include "Array.cpp"
 #include "DoublyLinkedList.cpp"
 #include "BinaryHeapMax.cpp"
+#include "RedBlackTree.cpp"
 
 using namespace std;
 
@@ -39,17 +40,54 @@ int main() {
         if (i % 10000==0) cout << i << ", errors: " << errorCounter << endl;
     }
     cout << errorCounter;*/
-    auto heap = new BinaryHeapMax();
-    heap->add(1);
-    heap->add(3);
-    heap->add(7);
-    heap->add(5);
-    heap->add(4);
-    heap->add(11);
+//    auto heap = new BinaryHeapMax();
+//    srand(time(NULL));
+//    for (int i = 0; i < 10; ++i) {
+//        int number = rand() % 100;
+//        heap->add(number);
+//    }
+//    heap->print();
+//    heap->removeGivenNumber(7);
+//    heap->print();
+//    heap->removeRoot();
+//    heap->print();
+//    RedBlackTree *a = new RedBlackTree();
+//    DoublyLinkedList *a = new DoublyLinkedList();
+//    a->removeAnywhere(0);
+//    a->addFront(2);
+//    a->addFront(3);
+//    a->removeAnywhere(1);
+//    a->removeAnywhere(0);
+//    a->addBack(3);
+//    a->addBack(4);
+//    a->removeAnywhere(1);
+//    a->addBack(5);
+//    a->addBack(6);
+//    a->add(3);
+//    a->add(4);
+//    a->add(1);
+//    a->add(5);
+//    a->print();
+    int tab[] = {1, 3, 4, 7, 19, 18, 16, 10, 8, 2, 5, 20, 17, 15, 11, 6, 9, 12, 14, 13};
+    BinaryHeapMax *heap = new BinaryHeapMax(tab, 20);
     heap->print();
-    heap->removeGivenNumber(7);
+    if (heap->heapTest())
+        cout << "Yeet"<<endl;
+    heap->add(21);
     heap->print();
+    if (heap->heapTest())
+        cout << "Yeet"<<endl;
+    heap->add(0);
+    heap->print();
+    if (heap->heapTest())
+        cout << "Yeet"<<endl;
     heap->removeRoot();
     heap->print();
+    if (heap->heapTest())
+        cout << "Yeet"<<endl;
+    heap->removeGivenNumber(17);
+    heap->print();
+    if (heap->heapTest())
+        cout << "Yeet"<<endl;
     return 0;
 }
