@@ -89,7 +89,7 @@ int main() {
     heap->print();
     if (heap->heapTest())
         cout << "Yeet"<<endl;*/
-    BinaryHeapMax *heap=new BinaryHeapMax();
+    /*BinaryHeapMax *heap=new BinaryHeapMax();
     heap->removeGivenNumber(0);
     heap->print();
     if (heap->heapTest())
@@ -105,8 +105,8 @@ int main() {
     if (heap->heapTest())
         cout << "Yeet"<<endl;
     heap->removeGivenNumber(2);
-    heap->print();
+    heap->print();//todo podczas run jest tu syf, podczas debugu jest 1 jak powinno, i dont even know anymore...
     if (heap->heapTest())
-        cout << "Yeet"<<endl;
+        cout << "Yeet"<<endl;*/
     return 0;
 }

@@ -102,7 +102,7 @@ public:
     }
 
     /**
-     * naprawianie kopca w dół; poniższy algorytm został napisany przy pomocy pseudokodu z https://en.wikipedia.org/wiki/Binary_heap#Extract
+     * naprawianie kopca w dół; algorytm apisany przy pomocy pseudokodu z https://en.wikipedia.org/wiki/Binary_heap#Extract
      * @param parentIndex
      */
     void heapifyDown(unsigned int parentIndex) {
@@ -126,11 +126,10 @@ public:
     }
 
     /**
-     * usuwanie danej liczby, jeśli jest w kopcu; jeśli jest kilka przypadków wystąpienia takiej liczby usunięte zostaje jedynie pierwsze znalezione wystąpienie
+     * szukanie i usuwanie danej liczby, jeśli jest w kopcu; jeśli jest kilka przypadków wystąpienia takiej liczby usunięte zostaje jedynie pierwsze znalezione wystąpienie
      * @param number
      */
     void removeGivenNumber(int number) {
-        //todo poprawić, uwzględnić warunki możliwego rozsypania się programu
         for (unsigned int i = 0; i < heapSize; ++i) {
             if (array[i] == number) {
                 --heapSize;
@@ -138,7 +137,7 @@ public:
                 for (unsigned int j = 0; j < i; ++j) {
                     newArray[j] = array[j];
                 }
-                //zamiana usuwanego elementu z ostatnim liściem, korzenia nie wstawiamy na koniec bo i tak jest usuwany
+                //jeśli da się, zamiana usuwanego elementu z ostatnim liściem, korzenia nie wstawiamy na koniec bo i tak jest usuwany
                 if (heapSize)
                     newArray[i] = array[heapSize];
                 for (unsigned int j = i + 1; j < heapSize; ++j) {
@@ -149,6 +148,20 @@ public:
                 heapifyDown(i);
             }
         }
+    }
+
+    /**
+     * wyszukanie podanej liczby w kopcu
+     * @param number
+     * @return true, jeśli znaleziono liczbę, false, jeśli nie znaleziono liczby
+     */
+    bool findGivenNumber(int number){
+        for (unsigned int i = 0; i < heapSize; ++i) {
+            if (array[i] == number) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -177,6 +190,7 @@ public:
         cl[1] = 196;
         cp[0] = 179;
         printRecursive("", "", 0);
+        cout << endl;
     }
 
     /**

@@ -54,7 +54,6 @@ public:
      * destruktor
      */
     ~DoublyLinkedList() {
-        ListElement *temp;
         while (head != nullptr) {
             removeFront(); //aby zdealokować pamięć po wszystkich elementach
         }
@@ -157,7 +156,7 @@ public:
     }
 
     /**
-     * metoda pomocnicza do usuwania już określonego elementu
+     * usuwanie podanego elementu listy
      * @param temp element do usunięcia
      */
     void removeGivenElement(ListElement *temp) {
@@ -200,11 +199,27 @@ public:
     }
 
     /**
-     * usunięcie podanej liczby, jeśli jest w liście; jeśli jest kilka przypadków wystąpienia takiej liczby usunięte zostaje jedynie pierwsze znalezione wystąpienie
+     * szukanie i usunięcie podanej liczby, jeśli jest w liście; jeśli jest kilka przypadków wystąpienia takiej liczby usunięte zostaje jedynie pierwsze znalezione wystąpienie
      * @param number
      * @return true - jeśli znaleziono i usunięto daną liczbę, false - w przeciwnym wypadku
      */
     bool removeGivenNumber(int number) {
+        ListElement *temp = head;
+        while (temp != nullptr) {
+            if (temp->value == number) {
+                removeGivenElement(temp);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * wyszukanie podanej liczby w liście
+     * @param number
+     * @return true, jeśli znaleziono liczbę, false, jeśli nie znaleziono liczby
+     */
+    bool findGivenNumber(int number) {
         ListElement *temp = head;
         while (temp != nullptr) {
             if (temp->value == number) {

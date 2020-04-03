@@ -12,10 +12,6 @@ enum nodeColour {
  */
 class RedBlackTree {
 
-    string cr;
-    string cl;
-    string cp;//todo lepsza implementacja tego
-
     class Node {
     public:
         int value;
@@ -31,19 +27,77 @@ class RedBlackTree {
             right = r;
             colour = givenColour;
         }
+
+        Node *getBrother() {
+            if (parent != nullptr) {
+                return (parent->left == this) ? parent->right : parent->left;
+            }
+            return nullptr;
+        }
+
+        void rotateLeft() {
+            Node *b = this->right;
+            Node *parent = this->parent;
+            if (b != nullptr) {
+                this->right = b->left;
+                b->left = this;
+                this->parent = b;
+                if (this->right != nullptr) {
+                    this->right->parent = this;
+                }
+                b->parent = parent;
+                if (parent != nullptr) {
+                    if (this == parent->left) {
+                        parent->left = b;
+                    } else if (this == parent->right) {
+                        parent->right = b;
+                    }
+                }
+            }
+        }
+
+        void rotateRight() {
+            Node *b = this->left;
+            Node *parent = this->parent;
+            if (b != nullptr) {
+                this->left = b->right;
+                b->right = this;
+                this->parent = b;
+                if (this->left != nullptr) {
+                    this->left->parent = this;
+                }
+                b->parent = parent;
+                if (parent != nullptr) {
+                    if (this == parent->right) {
+                        parent->right = b;
+                    } else if (this == parent->left) {
+                        parent->left = b;
+                    }
+                }
+            }
+        }
     };
 
     Node *root;
 
+    void removeNodeFromMemory(Node *node) {
+        if (node == nullptr)
+            return;
+        Node *left = node->left;
+        Node *right = node->right;
+        removeNodeFromMemory(left);
+        removeNodeFromMemory(right);
+        delete node;
+    }
+
 public:
 
+    //todo lepsza implementacja tego
+    string cr;
+    string cl;
+    string cp;
+
     RedBlackTree(int *array = nullptr, int arraySize = 0) {
-        cr = cl = cp = "  ";//todo leppiej
-        cr[0] = 218;
-        cr[1] = 196;
-        cl[0] = 192;
-        cl[1] = 196;
-        cp[0] = 179;
         root = nullptr;
         for (unsigned int i = 0; i < arraySize; ++i) {
             add(array[i]);
@@ -51,10 +105,12 @@ public:
     }
 
     ~RedBlackTree() {
-        //todo important
+        removeNodeFromMemory(root);
     }
 
+    //todo komentować
     void add(int number) {
+        //pierwszy przypadek
         if (root == nullptr) {
             root = new Node(number, nullptr, nullptr, nullptr, BLACK);
         } else {
@@ -71,22 +127,95 @@ public:
                 parent->left = newNode;
             else
                 parent->right = newNode;
+            addFixTree(newNode);
+            //znalezienie nowego korzenia
+            root = newNode;
+            while (newNode->parent != nullptr) {
+                newNode = newNode->parent;
+                root = newNode;
+            }
         }
     }
 
-    void remove(int number) {
-
+    void addFixTree(Node *node) {
+        if (node->parent != nullptr) {
+            Node *parent = node->parent;
+            if (parent->colour == RED) {
+                Node *uncle = parent->getBrother();
+                Node *grandparent = parent->parent;
+                if (uncle != nullptr) {
+                    if (uncle->colour == RED) {
+                        //trzeci przypadek
+                        parent->colour = BLACK;
+                        uncle->colour = BLACK;
+                        grandparent->colour = RED;
+                        addFixTree(grandparent);
+                    }
+                } else {
+                    //czwarty przypadek
+                    if (node == parent->right && parent == grandparent->left) {
+                        parent->rotateLeft();
+                        node = node->left;
+                    } else if (node == parent->left && parent == grandparent->right) {
+                        parent->rotateRight();
+                        node = node->right;
+                    }
+                    if (node == parent->left) {
+                        grandparent->rotateRight();
+                    } else {
+                        grandparent->rotateLeft();
+                    }
+                    parent->colour = BLACK;
+                    grandparent->colour = RED;
+                }
+            }
+            //drugi przypadek (nie trzeba robić nic)
+        }
+            //pierwszy przypadek
+        else node->colour = BLACK;
     }
 
-    void findGivenNumber(int number) {
+    /**
+     * szukanie i usuwanie danej liczby
+     * @param number
+     * @return true, jeśli znaleziono i usunięto liczbę, false w przeciwnym wypadku
+     */
+    bool remove(int number) {
+        Node *temp = root;
+        //todo znalezienie
+        removeGivenElement(temp);
+    }
 
+    /**
+     * usuwanie już danego elementu drzewa, algorytm - Cormen, Wprowadzenie do algorytmów
+     * @param node
+     */
+    void removeGivenElement(Node *node) {
+        //todo
+    }
+
+    /**
+     * wyszukanie podanej liczby w drzewie RB
+     * @param number
+     * @return true, jeśli znaleziono liczbę, false, jeśli nie znaleziono liczby
+     */
+    bool findGivenNumber(int number) {
+        Node *temp = root;
+        //todo
     }
 
     /**
      * wyświetlenie drzewa w konsoli, kolory węzłów są oznaczane przez literę R (red) lub B (black) na końcu liczby
      */
     void print() {
+        cr = cl = cp = "  ";
+        cr[0] = 218;
+        cr[1] = 196;
+        cl[0] = 192;
+        cl[1] = 196;
+        cp[0] = 179;
         printRecursive("", "", root);
+        cout << endl;
     }
 
     void printRecursive(string sp, string sn, Node *node) {

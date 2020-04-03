@@ -114,7 +114,7 @@ public:
     }
 
     /**
-     * usuwanie liczby z dowolnego miejsca w tablicy, jeśli dany indeks jest poprawny - przedział [0, rozmiar tablicy)
+     * usuwanie liczby z danego miejsca w tablicy, jeśli dany indeks jest poprawny - przedział [0, rozmiar tablicy)
      * @param index
      */
     void removeAnywhere(unsigned int index) {
@@ -144,6 +144,19 @@ public:
                 removeAnywhere(i);
                 return true;
             }
+        }
+        return false;
+    }
+
+    /**
+     * wyszukanie podanej liczby w tablicy
+     * @param number
+     * @return true, jeśli znaleziono liczbę, false, jeśli nie znaleziono liczby
+     */
+    bool findGivenNumber(int number) {
+        for (unsigned int i = 0; i < arraySize; ++i) {
+            if(array[i]==number)
+                return true;
         }
         return false;
     }
