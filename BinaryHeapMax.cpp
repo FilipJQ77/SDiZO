@@ -15,7 +15,6 @@ public:
     string cl = "  ";
     string cp = "  ";
 
-
     /**
      * stworzenie nowego pustego kopca
      */

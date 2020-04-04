@@ -108,5 +108,24 @@ int main() {
     heap->print();//todo podczas run jest tu syf, podczas debugu jest 1 jak powinno, i dont even know anymore...
     if (heap->heapTest())
         cout << "Yeet"<<endl;*/
+    int tab[] = {1, 2, 3, 4, 5, 6, 7};
+    RedBlackTree *tree = new RedBlackTree(tab, 7);
+//    tree->add(1);
+//    tree->add(2);
+//    tree->add(3);
+//    tree->add(4);
+    tree->print();
+    tree->remove(7);
+    tree->print();
+    tree->add(8);
+    tree->print();
+    tree->add(7);
+    tree->print();
+    tree->add(0);
+    tree->print();
+    tree->remove(7);
+    tree->print();
+    tree->remove(2);
+    tree->print();
     return 0;
 }
