@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
 
-using namespace std;
+using std::string;
+using std::cout;
 
 class BinaryHeapMax {
 
@@ -189,7 +190,7 @@ public:
         cl[1] = 196;
         cp[0] = 179;
         printRecursive("", "", 0);
-        cout << endl;
+        cout << '\n';
     }
 
     /**
@@ -205,7 +206,7 @@ public:
                 s[s.length() - 2] = ' ';
             printRecursive(s + cp, cr, 2 * index + 2);
             s = s.substr(0, sp.length() - 2);
-            cout << s << sn << array[index] << endl;
+            cout << s << sn << array[index] << '\n';
             s = sp;
             if (sn == cl)
                 s[s.length() - 2] = ' ';

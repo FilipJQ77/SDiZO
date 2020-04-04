@@ -1,5 +1,8 @@
 #include<iostream>
 
+using std::cout;
+using std::invalid_argument;
+
 /**
  * Klasa reprezentująca tablicę
  */
@@ -169,17 +172,17 @@ public:
     int getNumberAt(unsigned int index) {
         if (index < arraySize)
             return array[index];
-        else throw std::invalid_argument("Podany indeks jest niepoprawny");
+        else throw invalid_argument("Podany indeks jest niepoprawny");
     }
 
     /**
      * pokazanie tablicy w konsoli
      */
     void print() {
-        std::cout << "Tablica o rozmiarze: " << arraySize << std::endl;
+        cout << "Tablica o rozmiarze: " << arraySize << '\n';
         for (unsigned int i = 0; i < arraySize; ++i) {
-            std::cout << array[i] << ", ";
+            cout << array[i] << ", ";
         }
-        std::cout << std::endl;
+        cout << '\n';
     }
 };

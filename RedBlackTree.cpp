@@ -1,8 +1,13 @@
 #include <iostream>
 #include <string>
 
-using namespace std;
+using std::string;
+using std::to_string;
+using std::cout;
 
+/**
+ * Enum możliwych kolorów węzłów drzewa
+ */
 enum nodeColour {
     RED, BLACK
 };
@@ -12,6 +17,9 @@ enum nodeColour {
  */
 class RedBlackTree {
 
+    /**
+     * Pomocnicza klasa reprezentująca jeden węzeł drzewa
+     */
     class Node {
     public:
         int value;
@@ -32,6 +40,10 @@ class RedBlackTree {
     Node *nil;
     Node *root;
 
+    /**
+     * metoda wywoływana podczas usuwania drzewa, odpowiada za usunięcie wszystkich węzłów drzewa
+     * @param node
+     */
     void removeNodeFromMemory(Node *node) {
         if (node == nil)
             return;
@@ -68,6 +80,7 @@ public:
      */
     ~RedBlackTree() {
         removeNodeFromMemory(root);
+        delete nil;
     }
 
     /**
@@ -224,8 +237,7 @@ public:
                 }
             }
         }
-//        ważne, bo korzeń po operacjach wyżej może już nie być aktualnym korzeniem, todo check
-//        root = z;
+//        ważne, bo korzeń po operacjach wyżej może już nie być aktualnym korzeniem
         while (root->parent != nil) {
             root = root->parent;
         }
@@ -462,7 +474,7 @@ public:
     }
 
     /**
-     * wyszukanie podanej liczby w drzewie RB
+     * wyszukanie podanej liczby w drzewie
      * @param number
      * @return true, jeśli znaleziono liczbę, false, jeśli nie znaleziono liczby
      */
@@ -485,11 +497,11 @@ public:
      * @return
      */
     bool rbTreeTest(){
-
+        return true;
     }
 
     /**
-     * wyświetlenie drzewa w konsoli, kolory węzłów są oznaczane przez literę R (red) lub B (black) na końcu liczby
+     * wyświetlenie drzewa w konsoli, analogicznie jak w kopcu; kolory węzłów są oznaczane przez literę R (red) lub B (black) na końcu liczby,
      */
     void print() {
         cr = cl = cp = "  ";
@@ -499,7 +511,7 @@ public:
         cl[1] = 196;
         cp[0] = 179;
         printRecursive("", "", root);
-        cout << endl;
+        cout << '\n';
     }
 
     void printRecursive(string sp, string sn, Node *node) {
@@ -510,7 +522,7 @@ public:
             printRecursive(s + cp, cr, node->right);
             s = s.substr(0, sp.length() - 2);
             string value = (node->colour == RED) ? to_string(node->value) + "R" : to_string(node->value) + "B";
-            cout << s << sn << value << endl;
+            cout << s << sn << value << '\n';
             s = sp;
             if (sn == cl)
                 s[s.length() - 2] = ' ';

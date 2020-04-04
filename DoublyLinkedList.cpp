@@ -1,6 +1,7 @@
 #include<iostream>
 
-using namespace std;
+using std::cout;
+using std::invalid_argument;
 
 /**
  * Klasa reprezentująca listę dwukierunkową
@@ -258,11 +259,11 @@ public:
 
     void print() {
         ListElement *temp = head;
-        cout << "Lista o rozmiarze: " << listSize << endl;
+        cout << "Lista o rozmiarze: " << listSize << '\n';
         while (temp != nullptr) {
             cout << temp->value << ", ";
             temp = temp->next;
         }
-        cout << endl;
+        cout << '\n';
     }
 };

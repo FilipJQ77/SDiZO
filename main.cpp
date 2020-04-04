@@ -1,17 +1,53 @@
 #include <iostream>
-#include <string>
-#include <cstdio>
-#include <ctime>
+//#include <string>
 #include <windows.h>
+#include <fstream>
 #include "Array.cpp"
 #include "DoublyLinkedList.cpp"
 #include "BinaryHeapMax.cpp"
 #include "RedBlackTree.cpp"
+#include "AVLTree.cpp"
 
-using namespace std;
+using std::cout;
 
+/**
+ * fragment kodu z https://stackoverflow.com/questions/1739259/how-to-use-queryperformancecounter
+ * odpowiadający za przygotowanie QueryPerformanceCounter oraz metod umożliwiających mierzenie czasu
+ */
+double pcFreq = 0.0;
+__int64 counterStart = 0;
+
+/**
+ * włącza (od nowa) stoper
+ */
+void startCounter() {
+    LARGE_INTEGER li;
+    if (!QueryPerformanceFrequency(&li))
+        cout << "QueryPerformanceFrequency failed!\n";
+    pcFreq = double(li.QuadPart) / 1000000.0;
+    QueryPerformanceCounter(&li);
+    counterStart = li.QuadPart;
+}
+
+/**
+ * zwraca czas w mikrosekundach od momentu uruchomienia stopera
+ * @return
+ */
+double getCounter() {
+    LARGE_INTEGER li;
+    QueryPerformanceCounter(&li);
+    return double(li.QuadPart - counterStart) / pcFreq;
+}
 
 int main() {
+    startCounter();
+    for (int i = 0; i < 1000000; i++){}
+    double x = getCounter();
+    startCounter();
+    for (int i = 0; i < 1000000; ++i){}
+    double y = getCounter();
+    cout << x << ", " << y << '\n';
+    //todo postincrement jest szybszy? wtf
     /*DoublyLinkedList *list = new DoublyLinkedList();
     for (int i = 0; i < 9; ++i) {
         list->addBack(i);
@@ -37,7 +73,7 @@ int main() {
             delete heap;
             heap = new BinaryHeapMax();
         }
-        if (i % 10000==0) cout << i << ", errors: " << errorCounter << endl;
+        if (i % 10000==0) cout << i << ", errors: " << errorCounter << '\n';
     }
     cout << errorCounter;*/
 //    auto heap = new BinaryHeapMax();
@@ -72,48 +108,45 @@ int main() {
     BinaryHeapMax *heap = new BinaryHeapMax(tab, 20);
     heap->print();
     if (heap->heapTest())
-        cout << "Yeet"<<endl;
+        cout << "Yeet"<<'\n';
     heap->add(21);
     heap->print();
     if (heap->heapTest())
-        cout << "Yeet"<<endl;
+        cout << "Yeet"<<'\n';
     heap->add(0);
     heap->print();
     if (heap->heapTest())
-        cout << "Yeet"<<endl;
+        cout << "Yeet"<<'\n';
     heap->removeRoot();
     heap->print();
     if (heap->heapTest())
-        cout << "Yeet"<<endl;
+        cout << "Yeet"<<'\n';
     heap->removeGivenNumber(17);
     heap->print();
     if (heap->heapTest())
-        cout << "Yeet"<<endl;*/
+        cout << "Yeet"<<'\n';*/
     /*BinaryHeapMax *heap=new BinaryHeapMax();
     heap->removeGivenNumber(0);
     heap->print();
     if (heap->heapTest())
-        cout << "Yeet"<<endl;
+        cout << "Yeet"<<'\n';
     heap->add(1);
     heap->removeGivenNumber(1);
     heap->print();
     if (heap->heapTest())
-        cout << "Yeet"<<endl;
+        cout << "Yeet"<<'\n';
     heap->add(1);
     heap->add(2);
     heap->print();
     if (heap->heapTest())
-        cout << "Yeet"<<endl;
+        cout << "Yeet"<<'\n';
     heap->removeGivenNumber(2);
     heap->print();//todo podczas run jest tu syf, podczas debugu jest 1 jak powinno, i dont even know anymore...
     if (heap->heapTest())
-        cout << "Yeet"<<endl;*/
-    int tab[] = {1, 2, 3, 4, 5, 6, 7};
-    RedBlackTree *tree = new RedBlackTree(tab, 7);
-//    tree->add(1);
-//    tree->add(2);
-//    tree->add(3);
-//    tree->add(4);
+        cout << "Yeet"<<'\n';*/
+    /*int tab[] = {1, 2, 3, 4, 5, 6, 7};
+    RedBlackTree *tree;
+    tree = new RedBlackTree(tab, 7);
     tree->print();
     tree->remove(7);
     tree->print();
@@ -127,5 +160,7 @@ int main() {
     tree->print();
     tree->remove(2);
     tree->print();
+    tree->remove(-1);
+    delete tree;*/
     return 0;
 }
