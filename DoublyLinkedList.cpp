@@ -66,7 +66,7 @@ public:
      */
     void addFront(int number) {
         ++listSize;
-        ListElement *newElement = new ListElement(number, nullptr, head);
+        auto *newElement = new ListElement(number, nullptr, head);
         if (head == nullptr)
             tail = newElement; //jeśli głowa nie wskazuje na nic, oznacza to że lista jest pusta, więc dodajemy jedyny element, który będzie jednocześnie głową oraz ogonem
         else
@@ -80,7 +80,7 @@ public:
      */
     void addBack(int number) {
         ++listSize;
-        ListElement *newElement = new ListElement(number, tail, nullptr);
+        auto *newElement = new ListElement(number, tail, nullptr);
         if (tail == nullptr)
             head = newElement; //jeśli ogon nie wskazuje na nic, oznacza to że lista jest pusta, więc dodajemy jedyny element, który będzie jednocześnie ogonem oraz głową
         else
@@ -110,8 +110,9 @@ public:
                 }
             }
             ++listSize;
-            ListElement *newElement = new ListElement(number, temp->prev, temp);
-            (temp->prev)->next = newElement;
+            auto *newElement = new ListElement(number, temp->prev, temp);
+            if (temp->prev != nullptr)
+                (temp->prev)->next = newElement;
             temp->prev = newElement;
         }
     }
@@ -129,8 +130,9 @@ public:
             delete head;
             head = newHead;
         }
-        //jeśli jest najwyżej 1 element
+            //jeśli jest najwyżej 1 element
         else {
+            delete head;
             head = tail = nullptr;
             listSize = 0;
         }
@@ -149,8 +151,9 @@ public:
             delete tail;
             tail = newTail;
         }
-        //jeśli jest najwyżej 1 element
+            //jeśli jest najwyżej 1 element
         else {
+            delete tail;
             head = tail = nullptr;
             listSize = 0;
         }
@@ -210,7 +213,8 @@ public:
             if (temp->value == number) {
                 removeGivenElement(temp);
                 return true;
-            }
+            } else
+                temp = temp->next;
         }
         return false;
     }
@@ -223,10 +227,10 @@ public:
     bool findGivenNumber(int number) {
         ListElement *temp = head;
         while (temp != nullptr) {
-            if (temp->value == number) {
-                removeGivenElement(temp);
+            if (temp->value == number)
                 return true;
-            }
+            else
+                temp = temp->next;
         }
         return false;
     }

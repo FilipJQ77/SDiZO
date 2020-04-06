@@ -64,7 +64,7 @@ public:
      * @param array
      * @param arraySize
      */
-    RedBlackTree(int *array = nullptr, int arraySize = 0) {
+    explicit RedBlackTree(int *array = nullptr, int arraySize = 0) {
         nil = new Node(0, nullptr, nullptr, nullptr, BLACK);
         nil->parent = nil;
         nil->left = nil;
@@ -170,29 +170,6 @@ public:
             y->left = z;
         } else y->right = z;
         addFixTree(z);
-        /*if (root == nil) {
-            root = new Node(number, nil, nil, nil, BLACK);
-        } else {
-            Node *parent;
-            Node *placeToAdd = root;
-            do {
-                parent = placeToAdd;
-                if (number < parent->value)
-                    placeToAdd = parent->left;
-                else placeToAdd = parent->right;
-            } while (placeToAdd != nil);
-            Node *z = new Node(number, parent, nil, nil);
-            if (number < parent->value)
-                parent->left = z;
-            else
-                parent->right = z;
-            addFixTree(z);
-            root = z;
-            while (z->parent != nil) {
-                z = z->parent;
-                root = z;
-            }
-        }*/
     }
 
     /**
@@ -242,42 +219,6 @@ public:
             root = root->parent;
         }
         root->colour = BLACK;
-        /*if (z->parent != nil) {
-            Node *parent = z->parent;
-            if (parent->colour == RED) {
-                Node *uncle = getBrotherOfNode(parent);
-                Node *grandparent = parent->parent;
-                if (uncle != nil) {
-                    if (uncle->colour == RED) {
-                        //trzeci przypadek
-                        parent->colour = BLACK;
-                        uncle->colour = BLACK;
-                        grandparent->colour = RED;
-                        addFixTree(grandparent);
-                    }
-                } else {
-                    //czwarty przypadek
-                    if (z == parent->right && parent == grandparent->left) {
-                        rotateLeft(parent);
-                        z = z->left;
-                    } else if (z == parent->left && parent == grandparent->right) {
-                        rotateRight(parent);
-                        z = z->right;
-                    }
-                    if (z == parent->left) {
-                        rotateRight(grandparent);
-                    } else {
-                        rotateLeft(grandparent);
-                    }
-                    parent->colour = BLACK;
-                    grandparent->colour = RED;
-                }
-            }
-            //drugi przypadek (nie trzeba robić nic)
-        }
-            //pierwszy przypadek
-        else z->colour = BLACK;*/
-
     }
 
     /**
@@ -285,7 +226,7 @@ public:
      * @param number
      * @return true, jeśli znaleziono i usunięto liczbę, false w przeciwnym wypadku
      */
-    bool remove(int number) {
+    bool removeGivenNumber(int number) {
         Node *temp = root;
         while (temp != nil) {
             if (number == temp->value) {
@@ -306,37 +247,6 @@ public:
      * @param node
      */
     void removeGivenElement(Node *node) {
-        /*Node *y = node;
-        if (node->left != nil && node->right != nil) {
-            //node ma dwóch potomków, wyznaczenie następnika i wstawienie jego wartości do node, i usuwamy następnika
-            y = node->right;
-            while (y->left != nil)
-                y = y->left;
-            node->value = y->value;
-        }
-        //wiadomo, że y ma najwyżej jednego potomka
-        Node *child = (y->right == nil) ? y->left : y->right;
-        if (child != nil) {
-            child->parent = y->parent;
-            if (y == y->parent->left)
-                y->parent->left = child;
-            else
-                y->parent->right = child;
-        }
-        if (y->colour == BLACK) {
-            if (child->colour == RED) {
-                child->colour = BLACK;
-            } else {
-                removeFixTree(child);
-            }
-        }
-        //usunięcie odniesienia do danego elementu u rodzica usuwanego elementu
-        Node *parentOfDeletedNode = y->parent;
-        if (parentOfDeletedNode->left == y)
-            parentOfDeletedNode->left = nil;
-        else
-            parentOfDeletedNode->right = nil;
-        delete y;*/
         Node *y;
         if (node->left == nil || node->right == nil)
             y = node;
@@ -370,107 +280,57 @@ public:
 
     /**
      * naprawianie właściwości drzewa czerwono-czarnego, algorytm - Cormen - wprowadzenie do algorytmów 13.4
-     * @param child
+     * @param node
      */
-    void removeFixTree(Node *child) {
-        /*if (child->parent != nil) {
-            Node *brother = getBrotherOfNode(child);
-            if (brother->colour == RED) {
-                child->parent->colour = RED;
-                brother->colour = BLACK;
-                if (child == child->parent->left) {
-                    rotateLeft(child->parent);
-                } else {
-                    rotateRight(child->parent);
-                }
-            }
-            if ((child->parent->colour == BLACK) && (brother->left->colour == BLACK) &&
-                (brother->right->colour == BLACK)) {
-                brother->colour = RED;
-                removeFixTree(child->parent);
-            } else {
-                if ((child->parent->colour == RED) && (brother->left->colour == BLACK) &&
-                    (brother->right->colour == BLACK)) {
-                    brother->colour = RED;
-                    child->parent->colour = BLACK;
-                } else {
-                    // The following statements just force the red to be on the left of the
-                    // left of the parent, or right of the right, so case six will rotate
-                    // correctly.
-                    if ((child == child->parent->left) && (brother->right->colour == BLACK) &&
-                        (brother->left->colour == RED)) {
-                        // This last test is trivial too due to cases 2-4.
-                        brother->colour = RED;
-                        brother->left->colour = BLACK;
-                        rotateRight(brother);
-                    } else if ((child == child->parent->right) && (brother->left->colour == BLACK) &&
-                               (brother->right->colour == RED)) {
-                        // This last test is trivial too due to cases 2-4.
-                        brother->colour = RED;
-                        brother->right->colour = BLACK;
-                        rotateLeft(brother);
-                    }
-                    brother->colour = child->parent->colour;
-                    child->parent->colour = BLACK;
-
-                    if (child == child->parent->left) {
-                        brother->right->colour = BLACK;
-                        rotateLeft(child->parent);
-                    } else {
-                        brother->left->colour = BLACK;
-                        rotateRight(child->parent);
-                    }
-                }
-            }
-        }*/
-        while (child != root && child->colour == BLACK) {
-            if (child == child->parent->left) {
-                Node *w = child->parent->right;
+    void removeFixTree(Node *node) {
+        while (node != root && node->colour == BLACK) {
+            if (node == node->parent->left) {
+                Node *w = node->parent->right;
                 if (w->colour == RED) {
                     w->colour = BLACK;
-                    child->parent->colour = RED;
-                    rotateLeft(child->parent);
-                    w = child->parent->right;
+                    node->parent->colour = RED;
+                    rotateLeft(node->parent);
+                    w = node->parent->right;
                 }
                 if (w->left->colour == BLACK && w->right->colour == BLACK) {
                     w->colour = RED;
-                    child = child->parent;
+                    node = node->parent;
                 } else if (w->right->colour == BLACK) {
                     w->left->colour = BLACK;
                     w->colour = RED;
                     rotateRight(w);
-                    w = child->parent->right;
+                    w = node->parent->right;
                 }
-                w->colour = child->parent->colour;
-                child->parent->colour = BLACK;
+                w->colour = node->parent->colour;
+                node->parent->colour = BLACK;
                 w->right->colour = BLACK;
-                rotateLeft(child->parent);
-                child = root;
+                rotateLeft(node->parent);
+                node = root;
             } else {
-                Node *w = child->parent->left;
+                Node *w = node->parent->left;
                 if (w->colour == RED) {
                     w->colour = BLACK;
-                    child->parent->colour = RED;
-                    rotateRight(child->parent);
-                    w = child->parent->left;
+                    node->parent->colour = RED;
+                    rotateRight(node->parent);
+                    w = node->parent->left;
                 }
                 if (w->right->colour == BLACK && w->left->colour == BLACK) {
                     w->colour = RED;
-                    child = child->parent;
+                    node = node->parent;
                 } else if (w->left->colour == BLACK) {
                     w->right->colour = BLACK;
                     w->colour = RED;
                     rotateLeft(w);
-                    w = child->parent->left;
+                    w = node->parent->left;
                 }
-                w->colour = child->parent->colour;
-                child->parent->colour = BLACK;
+                w->colour = node->parent->colour;
+                node->parent->colour = BLACK;
                 w->left->colour = BLACK;
-                rotateRight(child->parent);
-                child = root;
+                rotateRight(node->parent);
+                node = root;
             }
         }
-        child->colour = BLACK;
+        node->colour = BLACK;
     }
 
     /**
@@ -490,13 +350,33 @@ public:
                     temp = temp->right;
             }
         }
+        return false;
+    }
+
+    /**
+     * tylko do testów, aby wydobyć losowy element drzewa do usunięcia
+     * @return
+     */
+    Node *getNodeWithGivenNumber(int number) {
+        Node *temp = root;
+        while (temp != nil) {
+            if (number == temp->value)
+                return temp;
+            else {
+                if (number < temp->value)
+                    temp = temp->left;
+                else
+                    temp = temp->right;
+            }
+        }
+        return nullptr;
     }
 
     /**
      * todo? test sprawdzający czy drzewo jest poprawne
      * @return
      */
-    bool rbTreeTest(){
+    bool rbTreeTest() {
         return true;
     }
 
@@ -514,7 +394,7 @@ public:
         cout << '\n';
     }
 
-    void printRecursive(string sp, string sn, Node *node) {
+    void printRecursive(const string &sp, const string &sn, Node *node) {
         if (node != nil) {
             string s = sp; //"tekst do wyświetlenia w wierszach pośrednich dla synów"
             if (sn == cr)

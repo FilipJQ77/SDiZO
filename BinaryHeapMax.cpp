@@ -17,29 +17,23 @@ public:
     string cp = "  ";
 
     /**
-     * stworzenie nowego pustego kopca
-     */
-    BinaryHeapMax() {
-        array = new int[0];
-        heapSize = 0;
-    }
-
-    /**
-     * stworzenie kopca na podstawie podanej tablicy, za pomocą algorytmu Floyda
+     * stworzenie kopca, albo pustego, albo na podstawie podanej tablicy za pomocą algorytmu Floyda
      * @param arrayGiven
      * @param arraySizeGiven
      */
-    BinaryHeapMax(int *arrayGiven, int arraySizeGiven) {
+    explicit BinaryHeapMax(int *arrayGiven = nullptr, int arraySizeGiven = 0) {
         heapSize = arraySizeGiven;
         array = new int[arraySizeGiven];
         for (unsigned int i = 0; i < arraySizeGiven; ++i) {
             array[i] = arrayGiven[i];
         }
-        unsigned int i = 1 + (heapSize - 2) / 2;
-        do {
-            --i;
-            heapifyDown(i);
-        } while (i);
+        if (heapSize != 0) {
+            unsigned int i = 1 + (heapSize - 2) / 2;
+            do {
+                --i;
+                heapifyDown(i);
+            } while (i);
+        }
     }
 
     /**
@@ -128,8 +122,9 @@ public:
     /**
      * szukanie i usuwanie danej liczby, jeśli jest w kopcu; jeśli jest kilka przypadków wystąpienia takiej liczby usunięte zostaje jedynie pierwsze znalezione wystąpienie
      * @param number
+     * @return true jeśli usunięto liczbę, false jeśli nie udało się usunąć liczby
      */
-    void removeGivenNumber(int number) {
+    bool removeGivenNumber(int number) {
         for (unsigned int i = 0; i < heapSize; ++i) {
             if (array[i] == number) {
                 --heapSize;
@@ -146,7 +141,29 @@ public:
                 delete[] array;
                 array = newArray;
                 heapifyDown(i);
+                return true;
             }
+        }
+        return false;
+    }
+
+    //todo removeGivenElement żeby moć testować samo usuwanie
+    void removeGivenElement(unsigned int index) {
+        if (index < heapSize) {
+            --heapSize;
+            int *newArray = new int[heapSize];
+            for (unsigned int j = 0; j < index; ++j) {
+                newArray[j] = array[j];
+            }
+            //jeśli da się, zamiana usuwanego elementu z ostatnim liściem, korzenia nie wstawiamy na koniec bo i tak jest usuwany
+            if (heapSize)
+                newArray[index] = array[heapSize];
+            for (unsigned int j = index + 1; j < heapSize; ++j) {
+                newArray[j] = array[j];
+            }
+            delete[] array;
+            array = newArray;
+            heapifyDown(index);
         }
     }
 
@@ -155,7 +172,7 @@ public:
      * @param number
      * @return true, jeśli znaleziono liczbę, false, jeśli nie znaleziono liczby
      */
-    bool findGivenNumber(int number){
+    bool findGivenNumber(int number) {
         for (unsigned int i = 0; i < heapSize; ++i) {
             if (array[i] == number) {
                 return true;
@@ -199,7 +216,7 @@ public:
      * @param sn "tekst do wyświetlenia przed węzłem"
      * @param index
      */
-    void printRecursive(string sp, string sn, unsigned int index) {
+    void printRecursive(const string& sp, const string& sn, unsigned int index) {
         if (index < heapSize) {
             string s = sp; //"tekst do wyświetlenia w wierszach pośrednich dla synów"
             if (sn == cr)

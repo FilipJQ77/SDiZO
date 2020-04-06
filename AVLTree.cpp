@@ -5,31 +5,24 @@ using std::string;
 using std::cout;
 
 /**
- * Klasa reprezentująca drzewo AVL
+ * Klasa reprezentująca drzewo AVL zrobiona z pomocą materiałów dr inż. Jarosława Mierzwy oraz https://github.com/developer0hye/AVLTree-CPP/blob/master/avltree.cpp
  */
 class AVLTree {
 
     class Node {
     public:
         int value;
+        int height; //na jakiej wysokości drzewa znajduje się węzeł
         Node *parent;
         Node *left;
         Node *right;
-        int deepness; //głębokość - na jakiej wysokości drzewa znajduje się węzeł
 
         explicit Node(int val, Node *p = nullptr, Node *l = nullptr, Node *r = nullptr) {
             value = val;
             parent = p;
             left = l;
             right = r;
-        }
-
-        //todo czy w ogóle potrzebne
-        Node *getBrother() {
-            if (parent != nullptr) {
-                return (parent->left == this) ? parent->right : parent->left;
-            }
-            return nullptr;
+            height=0;
         }
 
         void rotateLeft() {
@@ -92,7 +85,7 @@ public:
     string cl;
     string cp;
 
-    AVLTree(int *array = nullptr, int arraySize = 0) {
+    explicit AVLTree(int *array = nullptr, int arraySize = 0) {
         root = nullptr;
         for (unsigned int i = 0; i < arraySize; ++i) {
             add(array[i]);
@@ -151,7 +144,7 @@ public:
      * @param number
      * @return true, jeśli znaleziono i usunięto liczbę, false w przeciwnym wypadku
      */
-    bool remove(int number) {
+    bool removeGivenNumber(int number) {
         Node *temp = root;
         while (temp != nullptr) {
             if (number == temp->value) {
@@ -164,6 +157,7 @@ public:
                     temp = temp->right;
             }
         }
+        return false;
     }
 
     /**
@@ -195,7 +189,7 @@ public:
     }
 
     /**
-     * wyświetlenie drzewa w konsoli, kolory węzłów są oznaczane przez literę R (red) lub B (black) na końcu liczby
+     * wyświetlenie drzewa w konsoli
      */
     void print() {
         cr = cl = cp = "  ";

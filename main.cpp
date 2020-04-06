@@ -1,5 +1,6 @@
 #include <iostream>
-//#include <string>
+#include <random>
+#include <string>
 #include <windows.h>
 #include <fstream>
 #include "Array.cpp"
@@ -8,7 +9,10 @@
 #include "RedBlackTree.cpp"
 #include "AVLTree.cpp"
 
+using std::cin;
 using std::cout;
+using std::ios;
+using std::fstream;
 
 /**
  * fragment kodu z https://stackoverflow.com/questions/1739259/how-to-use-queryperformancecounter
@@ -20,7 +24,7 @@ __int64 counterStart = 0;
 /**
  * włącza (od nowa) stoper
  */
-void startCounter() {
+void timerStart() {
     LARGE_INTEGER li;
     if (!QueryPerformanceFrequency(&li))
         cout << "QueryPerformanceFrequency failed!\n";
@@ -30,137 +34,1199 @@ void startCounter() {
 }
 
 /**
- * zwraca czas w mikrosekundach od momentu uruchomienia stopera
+ * zwraca czas w mikrosekundach od momentu ostatniego uruchomienia stopera
  * @return
  */
-double getCounter() {
+double timerTime() {
     LARGE_INTEGER li;
     QueryPerformanceCounter(&li);
     return double(li.QuadPart - counterStart) / pcFreq;
 }
 
-int main() {
-    startCounter();
-    for (int i = 0; i < 1000000; i++){}
-    double x = getCounter();
-    startCounter();
-    for (int i = 0; i < 1000000; ++i){}
-    double y = getCounter();
-    cout << x << ", " << y << '\n';
-    //todo postincrement jest szybszy? wtf
-    /*DoublyLinkedList *list = new DoublyLinkedList();
-    for (int i = 0; i < 9; ++i) {
-        list->addBack(i);
-    }
-    list->addAnywhere(11, 4);
-    int tab[] = {1, 2, 3, 4, 5};
-    DoublyLinkedList *list1 = new DoublyLinkedList(tab, 5);
-    */
+int *getDataFromFile(string filename) {
+    fstream file;
+    file.open(filename, ios::in);
+    int *array = nullptr;
+    string str;
+    int number;
+    if (file.good()) {
+        getline(file, str);
+        number = stoi(str);
+        array = new int[number + 1];
+        array[0] = number;
+        unsigned int i = 1;
+        while (!file.eof()) {
+            getline(file, str);
+            number = stoi(str);
+            array[i] = number;
+            ++i;
+        }
+        file.close();
+        return array;
+    } else throw std::exception();
+}
 
-    /*srand(time(NULL));
-    BinaryHeapMax *heap = new BinaryHeapMax();
-    int errorCounter = 0;
-    for (int i = 0; i < 20000000; ++i) {
-        int number = rand() % 10000;
-        heap->add(number);
-        heap->print();
-        if (!(heap->heapTest()))
-            ++errorCounter;
-        if (i % 10 == 0) {
-            heap->removeGivenNumber(number);
+string arrayAndListMenu = "1 - Stworz nowa pusta strukture\n2 - Stworz nowa strukture na podstawie danych z pliku\n3 - Dodaj liczbe na poczatek struktury\n4 - Dodaj liczbe na koniec struktury\n5 - Dodaj liczbe gdziekolwiek w strukturze\n6 - Usun liczbe na poczatku struktury\n7 - Usun liczbe na koncu struktury\n8 - Usun liczbe w dowolnym miejscu struktury\n9 - Usun podana liczbe ze struktury (pierwsze wystapienie)\n10 - Wyszukanie podanej liczby w strukturze (wynik - znaleziono/nie znaleziono)\n11 - Wyswietl liczbe ktora w strukturze jest pod podanym indeksem\n12 - Wyswietl strukture\n0 - Wyjdz do glownego menu\n";
+string treeMenu = "1 - Stworz nowa pusta strukture\n2 - Stworz nowa strukture na podstawie danych z pliku\n3 - Dodaj liczbe do struktury\n4 - Usun liczbe ze struktury\n5 - Wyszukanie podanej liczby w strukturze (wynik - znaleziono/nie znaleziono)\n6 - Wyswietl strukture\n0 - Wyjdz do glownego menu\n";
+
+void arrayLoop() {
+    bool run = true;
+    string inputS;
+    int inputI;
+    auto *structure = new Array();
+    while (run) {
+        cout << arrayAndListMenu;
+        getline(cin, inputS);
+        try {
+            inputI = stoi(inputS);
+        } catch (std::exception &e) {
+            cout << "Wyjatek: " << e.what() << "\n";
+            continue;
         }
-        if (i % 500 == 0) {
-            delete heap;
-            heap = new BinaryHeapMax();
+        switch (inputI) {
+            case 1:
+                delete structure;
+                structure = new Array();
+                break;
+            case 2:
+                cout << "Podaj nazwe pliku z ktorego maja byc wczytane dane\n";
+                getline(cin, inputS);
+                int *data;
+                try {
+                    data = getDataFromFile(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n"
+                         << "Cos poszlo nie tak, bedziesz nadal dzialal na poprzedniej strukturze, nacisnij enter aby kontynuowac\n";
+                    getline(cin, inputS);
+                    break;
+                }
+                delete structure;
+                structure = new Array(data + 1, data[0]);
+                break;
+            case 3:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->addFront(inputI);
+                break;
+            case 4:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->addBack(inputI);
+                break;
+            case 5:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                cout << "Podaj indeks\n";
+                unsigned int position;
+                getline(cin, inputS);
+                try {
+                    position = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->addAnywhere(inputI, position);
+                break;
+            case 6:
+                structure->removeFront();
+                break;
+            case 7:
+                structure->removeBack();
+                break;
+            case 8:
+                cout << "Podaj indeks\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->removeAnywhere(inputI);
+                break;
+            case 9:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->removeGivenNumber(inputI);
+                break;
+            case 10:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                if (structure->findGivenNumber(inputI))
+                    cout << "Znaleziono podana liczbe\n";
+                else
+                    cout << "Nie znaleziono podanej liczby\n";
+                break;
+            case 11:
+                cout << "Podaj indeks\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                try {
+                    structure->getNumberAt(inputI);
+                } catch (std::invalid_argument &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                }
+                break;
+            case 12:
+                structure->print();
+                cout << "Nacisnij enter aby kontynuowac";
+                getline(cin, inputS);
+                break;
+                break;
+            case 0:
+                run = false;
+                delete structure;
+                break;
+            default:
+                break;
         }
-        if (i % 10000==0) cout << i << ", errors: " << errorCounter << '\n';
     }
-    cout << errorCounter;*/
-//    auto heap = new BinaryHeapMax();
-//    srand(time(NULL));
-//    for (int i = 0; i < 10; ++i) {
-//        int number = rand() % 100;
-//        heap->add(number);
-//    }
-//    heap->print();
-//    heap->removeGivenNumber(7);
-//    heap->print();
-//    heap->removeRoot();
-//    heap->print();
-//    RedBlackTree *a = new RedBlackTree();
-//    DoublyLinkedList *a = new DoublyLinkedList();
-//    a->removeAnywhere(0);
-//    a->addFront(2);
-//    a->addFront(3);
-//    a->removeAnywhere(1);
-//    a->removeAnywhere(0);
-//    a->addBack(3);
-//    a->addBack(4);
-//    a->removeAnywhere(1);
-//    a->addBack(5);
-//    a->addBack(6);
-//    a->add(3);
-//    a->add(4);
-//    a->add(1);
-//    a->add(5);
-//    a->print();
-    /*int tab[] = {1, 3, 4, 7, 19, 18, 16, 10, 8, 2, 5, 20, 17, 15, 11, 6, 9, 12, 14, 13};
-    BinaryHeapMax *heap = new BinaryHeapMax(tab, 20);
-    heap->print();
-    if (heap->heapTest())
-        cout << "Yeet"<<'\n';
-    heap->add(21);
-    heap->print();
-    if (heap->heapTest())
-        cout << "Yeet"<<'\n';
-    heap->add(0);
-    heap->print();
-    if (heap->heapTest())
-        cout << "Yeet"<<'\n';
-    heap->removeRoot();
-    heap->print();
-    if (heap->heapTest())
-        cout << "Yeet"<<'\n';
-    heap->removeGivenNumber(17);
-    heap->print();
-    if (heap->heapTest())
-        cout << "Yeet"<<'\n';*/
-    /*BinaryHeapMax *heap=new BinaryHeapMax();
-    heap->removeGivenNumber(0);
-    heap->print();
-    if (heap->heapTest())
-        cout << "Yeet"<<'\n';
-    heap->add(1);
-    heap->removeGivenNumber(1);
-    heap->print();
-    if (heap->heapTest())
-        cout << "Yeet"<<'\n';
-    heap->add(1);
-    heap->add(2);
-    heap->print();
-    if (heap->heapTest())
-        cout << "Yeet"<<'\n';
-    heap->removeGivenNumber(2);
-    heap->print();//todo podczas run jest tu syf, podczas debugu jest 1 jak powinno, i dont even know anymore...
-    if (heap->heapTest())
-        cout << "Yeet"<<'\n';*/
-    /*int tab[] = {1, 2, 3, 4, 5, 6, 7};
-    RedBlackTree *tree;
-    tree = new RedBlackTree(tab, 7);
-    tree->print();
-    tree->remove(7);
-    tree->print();
-    tree->add(8);
-    tree->print();
-    tree->add(7);
-    tree->print();
-    tree->add(0);
-    tree->print();
-    tree->remove(7);
-    tree->print();
-    tree->remove(2);
-    tree->print();
-    tree->remove(-1);
-    delete tree;*/
+
+}
+
+void listLoop() {
+    bool run = true;
+    string inputS;
+    int inputI;
+    auto *structure = new DoublyLinkedList();
+    while (run) {
+        cout << arrayAndListMenu;
+        getline(cin, inputS);
+        try {
+            inputI = stoi(inputS);
+        } catch (std::exception &e) {
+            cout << "Wyjatek: " << e.what() << "\n";
+            continue;
+        }
+        switch (inputI) {
+            case 1:
+                delete structure;
+                structure = new DoublyLinkedList();
+                break;
+            case 2:
+                cout << "Podaj nazwe pliku z ktorego maja byc wczytane dane\n";
+                getline(cin, inputS);
+                int *data;
+                try {
+                    data = getDataFromFile(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n"
+                         << "Cos poszlo nie tak, bedziesz nadal dzialal na poprzedniej strukturze, nacisnij enter aby kontynuowac\n";
+                    getline(cin, inputS);
+                    break;
+                }
+                delete structure;
+                structure = new DoublyLinkedList(data + 1, data[0]);
+                break;
+            case 3:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->addFront(inputI);
+                break;
+            case 4:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->addBack(inputI);
+                break;
+            case 5:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                cout << "Podaj indeks\n";
+                unsigned int position;
+                getline(cin, inputS);
+                try {
+                    position = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->addAnywhere(inputI, position);
+                break;
+            case 6:
+                structure->removeFront();
+                break;
+            case 7:
+                structure->removeBack();
+                break;
+            case 8:
+                cout << "Podaj indeks\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->removeAnywhere(inputI);
+                break;
+            case 9:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->removeGivenNumber(inputI);
+                break;
+            case 10:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                if (structure->findGivenNumber(inputI))
+                    cout << "Znaleziono podana liczbe\n";
+                else
+                    cout << "Nie znaleziono podanej liczby\n";
+                break;
+            case 11:
+                cout << "Podaj indeks\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                try {
+                    structure->getNumberAt(inputI);
+                } catch (std::invalid_argument &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                }
+                break;
+            case 12:
+                structure->print();
+                cout << "Nacisnij enter aby kontynuowac";
+                getline(cin, inputS);
+                break;
+            case 0:
+                run = false;
+                delete structure;
+                break;
+            default:
+                break;
+        }
+    }
+
+}
+
+void heapLoop() {
+    bool run = true;
+    string inputS;
+    int inputI;
+    auto *structure = new BinaryHeapMax();
+    while (run) {
+        cout << treeMenu;
+        getline(cin, inputS);
+        try {
+            inputI = stoi(inputS);
+        } catch (std::exception &e) {
+            cout << "Wyjatek: " << e.what() << "\n";
+            continue;
+        }
+        switch (inputI) {
+            case 1:
+                delete structure;
+                structure = new BinaryHeapMax();
+                break;
+            case 2:
+                cout << "Podaj nazwe pliku z ktorego maja byc wczytane dane\n";
+                getline(cin, inputS);
+                int *data;
+                try {
+                    data = getDataFromFile(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n"
+                         << "Cos poszlo nie tak, bedziesz nadal dzialal na poprzedniej strukturze, nacisnij enter aby kontynuowac\n";
+                    getline(cin, inputS);
+                    break;
+                }
+                delete structure;
+                structure = new BinaryHeapMax(data + 1, data[0]);
+                break;
+            case 3:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->add(inputI);
+                break;
+            case 4:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->removeGivenNumber(inputI);
+                break;
+            case 5:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                if (structure->findGivenNumber(inputI))
+                    cout << "Znaleziono podana liczbe\n";
+                else
+                    cout << "Nie znaleziono podanej liczby\n";
+                break;
+            case 6:
+                structure->print();
+                cout << "Nacisnij enter aby kontynuowac";
+                getline(cin, inputS);
+                break;
+            case 0:
+                run = false;
+                delete structure;
+                break;
+            default:
+                break;
+        }
+    }
+
+}
+
+void rbTreeLoop() {
+    bool run = true;
+    string inputS;
+    int inputI;
+    auto *structure = new RedBlackTree();
+    while (run) {
+        cout << treeMenu;
+        getline(cin, inputS);
+        try {
+            inputI = stoi(inputS);
+        } catch (std::exception &e) {
+            cout << "Wyjatek: " << e.what() << "\n";
+            continue;
+        }
+        switch (inputI) {
+            case 1:
+                delete structure;
+                structure = new RedBlackTree();
+                break;
+            case 2:
+                cout << "Podaj nazwe pliku z ktorego maja byc wczytane dane\n";
+                getline(cin, inputS);
+                int *data;
+                try {
+                    data = getDataFromFile(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n"
+                         << "Cos poszlo nie tak, bedziesz nadal dzialal na poprzedniej strukturze, nacisnij enter aby kontynuowac\n";
+                    getline(cin, inputS);
+                    break;
+                }
+                delete structure;
+                structure = new RedBlackTree(data + 1, data[0]);
+                break;
+            case 3:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->add(inputI);
+                break;
+            case 4:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->removeGivenNumber(inputI);
+                break;
+            case 5:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                if (structure->findGivenNumber(inputI))
+                    cout << "Znaleziono podana liczbe\n";
+                else
+                    cout << "Nie znaleziono podanej liczby\n";
+                break;
+            case 6:
+                structure->print();
+                cout << "Nacisnij enter aby kontynuowac";
+                getline(cin, inputS);
+                break;
+            case 0:
+                run = false;
+                delete structure;
+                break;
+            default:
+                break;
+        }
+    }
+
+}
+
+void avlTreeLoop() {
+    bool run = true;
+    string inputS;
+    int inputI;
+    auto *structure = new AVLTree();
+    while (run) {
+        cout << treeMenu;
+        getline(cin, inputS);
+        try {
+            inputI = stoi(inputS);
+        } catch (std::exception &e) {
+            cout << "Wyjatek: " << e.what() << "\n";
+            continue;
+        }
+        switch (inputI) {
+            case 1:
+                delete structure;
+                structure = new AVLTree();
+                break;
+            case 2:
+                cout << "Podaj nazwe pliku z ktorego maja byc wczytane dane\n";
+                getline(cin, inputS);
+                int *data;
+                try {
+                    data = getDataFromFile(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n"
+                         << "Cos poszlo nie tak, bedziesz nadal dzialal na poprzedniej strukturze, nacisnij enter aby kontynuowac\n";
+                    getline(cin, inputS);
+                    break;
+                }
+                delete structure;
+                structure = new AVLTree(data + 1, data[0]);
+                break;
+            case 3:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->add(inputI);
+                break;
+            case 4:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                structure->removeGivenNumber(inputI);
+                break;
+            case 5:
+                cout << "Podaj liczbe\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    break;
+                }
+                if (structure->findGivenNumber(inputI))
+                    cout << "Znaleziono podana liczbe\n";
+                else
+                    cout << "Nie znaleziono podanej liczby\n";
+                break;
+            case 6:
+                structure->print();
+                cout << "Nacisnij enter aby kontynuowac";
+                getline(cin, inputS);
+                break;
+            case 0:
+                run = false;
+                delete structure;
+                break;
+            default:
+                break;
+        }
+    }
+
+}
+
+int randomNumber(int mini, int maxi) {
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<int> distribution(mini, maxi);
+    return distribution(mt);
+}
+
+int *randomData(int size) {
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<int> distribution(INT_MIN, INT_MAX);
+    int *data = new int[size];
+    for (int i = 0; i < size; ++i) {
+        data[i] = distribution(mt);
+        //losowa liczba to distribution(mt)
+    }
+    return data;
+}
+
+void analyseResults(const double results[], double &minTime, double &maxTime, long double &averageTime) {
+    averageTime = 0;
+    minTime = results[0];
+    maxTime = results[0];
+    for (int i = 0; i < 1000; ++i) {
+        if (results[i] < minTime)
+            minTime = results[i];
+        else if (results[i] > maxTime)
+            maxTime = results[i];
+        averageTime += results[i];
+    }
+    averageTime /= 1000;
+}
+
+void completeTest() {
+    cout
+            << "Czy na pewno chcesz przeprowadzic kompletny test? Nie ma mozliwosci jego przerwania. Wpisz \'Y\' aby przeprowadzic test, lub cokolwiek innego, zeby nie przeprowadzic testu.\n";
+    string s;
+    getline(cin, s);
+    if (s == "Y" || s == "y") {
+        cout
+                << "Podaj nazwe pliku do ktorego zostana zapisane wyniki testow, jesli plik o podanej nazwie istnieje zostanie on nadpisany!\n";
+        getline(cin, s);
+        fstream file;
+        file.open(s, ios::out);
+        /*file<<*/cout<< "Nazwa struktury;Operacja;Rozmiar struktury;Minimalny czas;Sredni czas;Maksymalny czas\n";
+        int structureSizes[] = {10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 250000,
+                                500000, 1000000};
+        double results[1000];
+        double minTime;
+        double maxTime;
+        long double averageTime;
+        int *data;
+        for (int structureSize : structureSizes) {
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new Array(data, structureSize);
+                delete data;
+                int number = randomNumber(INT_MIN, INT_MAX);
+                timerStart();
+                structure->addFront(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Tablica;Dodanie na poczatek;" << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new Array(data, structureSize);
+                delete data;
+                int number = randomNumber(INT_MIN, INT_MAX);
+                timerStart();
+                structure->addBack(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Tablica;Dodanie na koniec;" << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new Array(data, structureSize);
+                delete data;
+                int number = randomNumber(INT_MIN, INT_MAX);
+                unsigned int index = randomNumber(0, structureSize - 1);
+                timerStart();
+                structure->addAnywhere(number, index);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Tablica;Dodanie w dowolne miejsce;" << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new Array(data, structureSize);
+                delete data;
+                timerStart();
+                structure->removeFront();
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Tablica;Usuniecie na poczatku;" << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new Array(data, structureSize);
+                delete data;
+                timerStart();
+                structure->removeBack();
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Tablica;Usuniecie na koncu;" << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new Array(data, structureSize);
+                delete data;
+                unsigned int index = randomNumber(0, structureSize - 1);
+                timerStart();
+                structure->removeAnywhere(index);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Tablica;Usuniecie w dowolnym miejscu;" << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new Array(data, structureSize);
+                unsigned int index = randomNumber(0, structureSize - 1);
+                int number = data[index];
+                delete data;
+                timerStart();
+                structure->findGivenNumber(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Tablica;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize << ";" << minTime
+                 << ";" << averageTime << ";" << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new Array(data, structureSize);
+                unsigned int index = randomNumber(0, structureSize - 1);
+                int number = data[index];
+                delete data;
+                timerStart();
+                structure->removeGivenNumber(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Tablica;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);" << structureSize << ";"
+                 << minTime << ";" << averageTime << ";" << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new Array(data, structureSize);
+                delete data;
+                unsigned int index = randomNumber(0, structureSize - 1);
+                timerStart();
+                structure->getNumberAt(index);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Tablica;Wydobycie elementu na danej pozycji;" << structureSize << ";" << minTime
+                 << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new DoublyLinkedList(data, structureSize);
+                delete data;
+                int number = randomNumber(INT_MIN, INT_MAX);
+                timerStart();
+                structure->addFront(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Lista dwukierunkowa;Dodanie na poczatek;" << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new DoublyLinkedList(data, structureSize);
+                delete data;
+                int number = randomNumber(INT_MIN, INT_MAX);
+                timerStart();
+                structure->addBack(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Lista dwukierunkowa;Dodanie na koniec;" << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new DoublyLinkedList(data, structureSize);
+                delete data;
+                int number = randomNumber(INT_MIN, INT_MAX);
+                unsigned int index = randomNumber(0, structureSize - 1);
+                timerStart();
+                structure->addAnywhere(number, index);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Lista dwukierunkowa;Dodanie w dowolne miejsce;" << structureSize << ";" << minTime << ";"
+                 << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new DoublyLinkedList(data, structureSize);
+                delete data;
+                timerStart();
+                structure->removeFront();
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Lista dwukierunkowa;Usuniecie na poczatku;" << structureSize << ";" << minTime << ";"
+                 << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new DoublyLinkedList(data, structureSize);
+                delete data;
+                timerStart();
+                structure->removeBack();
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Lista dwukierunkowa;Usuniecie na koncu;" << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new DoublyLinkedList(data, structureSize);
+                delete data;
+                unsigned int index = randomNumber(0, structureSize - 1);
+                timerStart();
+                structure->removeAnywhere(index);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Lista dwukierunkowa;Usuniecie w dowolnym miejscu;" << structureSize << ";" << minTime << ";"
+                 << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new DoublyLinkedList(data, structureSize);
+                unsigned int index = randomNumber(0, structureSize - 1);
+                int number = data[index];
+                delete data;
+                timerStart();
+                structure->findGivenNumber(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Lista dwukierunkowa;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize << ";"
+                 << minTime
+                 << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new DoublyLinkedList(data, structureSize);
+                unsigned int index = randomNumber(0, structureSize - 1);
+                int number = data[index];
+                delete data;
+                timerStart();
+                structure->removeGivenNumber(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Lista dwukierunkowa;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);" << structureSize
+                 << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new DoublyLinkedList(data, structureSize);
+                delete data;
+                unsigned int index = randomNumber(0, structureSize - 1);
+                timerStart();
+                structure->getNumberAt(index);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Lista dwukierunkowa;Wydobycie elementu na danej pozycji;" << structureSize << ";" << minTime
+                 << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            //todo kopiec porównanie między dodawaniem 1 elementu a stworzeniem od razu z całej tablicy
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new BinaryHeapMax(data, structureSize);
+                delete data;
+                int number = randomNumber(INT_MIN, INT_MAX);
+                timerStart();
+                structure->add(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Kopiec;Dodanie;" << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new BinaryHeapMax(data, structureSize);
+                delete data;
+                unsigned int index = randomNumber(0, structureSize - 1);
+                timerStart();
+                structure->removeGivenElement(index);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Kopiec;Usuniecie;" << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new BinaryHeapMax(data, structureSize);
+                unsigned int index = randomNumber(0, structureSize - 1);
+                int number = data[index];
+                delete data;
+                timerStart();
+                structure->findGivenNumber(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Kopiec;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize << ";" << minTime
+                 << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new BinaryHeapMax(data, structureSize);
+                unsigned int index = randomNumber(0, structureSize - 1);
+                int number = data[index];
+                delete data;
+                timerStart();
+                structure->removeGivenNumber(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Kopiec;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);" << structureSize << ";"
+                 << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new RedBlackTree(data, structureSize);
+                delete data;
+                int number = randomNumber(INT_MIN, INT_MAX);
+                timerStart();
+                structure->add(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Drzewo czerwono-czarne;Dodanie;" << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new RedBlackTree(data, structureSize);
+                unsigned int index = randomNumber(0, structureSize - 1);
+                int number = data[index];
+                delete data;
+                auto *a = structure->getNodeWithGivenNumber(number);
+                //todo sprawdz czy na pewno dziala
+                timerStart();
+                structure->removeGivenElement(a);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Drzewo czerwono-czarne;Usuniecie;" << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new RedBlackTree(data, structureSize);
+                unsigned int index = randomNumber(0, structureSize - 1);
+                int number = data[index];
+                delete data;
+                timerStart();
+                structure->findGivenNumber(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Drzewo czerwono-czarne;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize << ";"
+                 << minTime
+                 << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+            for (double &result : results) {
+                data = randomData(structureSize);
+                auto *structure = new RedBlackTree(data, structureSize);
+                unsigned int index = randomNumber(0, structureSize - 1);
+                int number = data[index];
+                delete data;
+                timerStart();
+                structure->removeGivenNumber(number);
+                result = timerTime();
+                delete structure;
+            }
+            analyseResults(results, minTime, maxTime, averageTime);
+            /*file<<*/cout<< "Drzewo czerwono-czarne;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);"
+                 << structureSize << ";" << minTime << ";" << averageTime
+                 << ";"
+                 << maxTime << "\n";
+
+
+            //todo drzewo avl jeśli się uda
+//            for (double & result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new AVLTree(data, structureSize);
+//                delete data;
+//                int number = randomNumber(INT_MIN, INT_MAX);
+//                timerStart();
+//                structure->add(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, minTime, maxTime, averageTime);
+//            /*file<<*/cout<< "Drzewo czerwono-czarne;Dodanie;" << structureSize << ";" << minTime << ";" << averageTime
+//                 << ";"
+//                 << maxTime << "\n";
+//
+//            for (double & result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new AVLTree(data, structureSize);
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                int number = data[index];
+//                delete data;
+//                auto *a = structure->getNodeWithGivenNumber(number);
+//                //todo sprawdz czy na pewno dziala
+//                timerStart();
+//                structure->removeGivenElement(a);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, minTime, maxTime, averageTime);
+//            /*file<<*/cout<< "Drzewo czerwono-czarne;Usuniecie;" << structureSize << ";" << minTime << ";" << averageTime
+//                 << ";"
+//                 << maxTime << "\n";
+//
+//            for (double & result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new AVLTree(data, structureSize);
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                int number = data[index];
+//                delete data;
+//                timerStart();
+//                structure->findGivenNumber(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, minTime, maxTime, averageTime);
+//            /*file<<*/cout<< "Drzewo czerwono-czarne;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize << ";" << minTime
+//                 << ";" << averageTime
+//                 << ";"
+//                 << maxTime << "\n";
+//
+//            for (double & result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new AVLTree(data, structureSize);
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                int number = data[index];
+//                delete data;
+//                timerStart();
+//                structure->removeGivenNumber(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, minTime, maxTime, averageTime);
+//            /*file<<*/cout<< "Drzewo czerwono-czarne;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);" << structureSize << ";" << minTime << ";" << averageTime
+//                 << ";"
+//                 << maxTime << "\n";
+
+        }
+        //file.close();
+//            /*file<<*/cout<< distribution(mt) << "\n";
+    }
+}
+
+/**
+ * todo wiem, że menu jest zrobione w tragiczny sposób, i lepiej by było wykorzystać klasę abstrakcyjną DataStructure oraz polimorfizm aby nie mieć 5 praktycznie tych samych fragmentów kodu, ale już nie miałem czasu aby przebudowywać program, i tak było prościej
+ */
+void mainLoop() {
+    string inputS;
+    int inputI;
+    bool run = true;
+    cout << "Witaj w programie o strukturach danych\n";
+    while (run) {
+        cout
+                << "Wpisz:\n1 - Stworz nowa strukture\n2 - Przeprowadz kompletny test wszystkich struktur\n0 - Wyjdz z programu\n";
+        getline(cin, inputS);
+        try {
+            inputI = stoi(inputS);
+        } catch (std::exception &e) {
+            cout << "Wyjatek: " << e.what() << "\n";
+            continue;
+        }
+        switch (inputI) {
+            case 1:
+                cout
+                        << "Wybierz jaka strukture chcesz stworzyc:\n1 - tablica\n2 - lista dwukierunkowa\n3 - kopiec binarny typu maksimum\n4 - drzewo czerwono-czarne\n5 - drzewo AVL\n";
+                getline(cin, inputS);
+                try {
+                    inputI = stoi(inputS);
+                } catch (std::exception &e) {
+                    cout << "Wyjatek: " << e.what() << "\n";
+                    continue;
+                }
+                switch (inputI) {
+                    case 1:
+                        arrayLoop();
+                        break;
+                    case 2:
+                        listLoop();
+                        break;
+                    case 3:
+                        heapLoop();
+                        break;
+                    case 4:
+                        rbTreeLoop();
+                        break;
+                    case 5:
+                        avlTreeLoop();
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case 2:
+                completeTest();
+                break;
+            case 0:
+                run = false;
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+
+int main() {
+    mainLoop();
     return 0;
 }

@@ -9,7 +9,7 @@ using std::invalid_argument;
 class Array {
 
     int *array; // wskaźnik na pierwszy element tablicy
-    unsigned int arraySize; //długość tablicy
+    int arraySize; //długość tablicy
 
 public:
 
@@ -18,7 +18,7 @@ public:
      * @param arrayGiven wskaźnik na początek danej tablicy liczb
      * @param arraySizeGiven rozmiar danej tablicy liczb
      */
-    Array(int *arrayGiven = nullptr, int arraySizeGiven = 0) {
+    explicit Array(int *arrayGiven = nullptr, int arraySizeGiven = 0) {
         array = new int[arraySizeGiven];
         arraySize = arraySizeGiven;
         for (unsigned int i = 0; i < arraySize; ++i) {
@@ -125,12 +125,10 @@ public:
             --arraySize;
             int *newArray = new int[arraySize];
             unsigned int i = 0;
-            for (; i < index; ++i) {
+            for (; i < index; ++i)
                 newArray[i] = array[i];
-            }
-            for (; i < arraySize; ++i) {
+            for (; i < arraySize; ++i)
                 newArray[i] = array[i + 1];
-            }
             delete[] array;
             array = newArray;
         }
@@ -158,7 +156,7 @@ public:
      */
     bool findGivenNumber(int number) {
         for (unsigned int i = 0; i < arraySize; ++i) {
-            if(array[i]==number)
+            if (array[i] == number)
                 return true;
         }
         return false;
