@@ -633,468 +633,325 @@ int randomNumber(int mini, int maxi) {
     return distribution(mt);
 }
 
-int *randomData(int size) {
+void randomData(int *array, int size) {
     std::random_device rd;
     std::mt19937 mt(rd());
     std::uniform_int_distribution<int> distribution(INT_MIN, INT_MAX);
-    int *data = new int[size];
     for (int i = 0; i < size; ++i) {
-        data[i] = distribution(mt);
+        array[i] = distribution(mt);
         //losowa liczba to distribution(mt)
     }
-    return data;
 }
 
-void analyseResults(const double results[], double &minTime, double &maxTime, long double &averageTime) {
+void analyseResults(const double results[], long double &averageTime) {
     averageTime = 0;
-    minTime = results[0];
-    maxTime = results[0];
     for (int i = 0; i < 1000; ++i) {
-        if (results[i] < minTime)
-            minTime = results[i];
-        else if (results[i] > maxTime)
-            maxTime = results[i];
         averageTime += results[i];
     }
     averageTime /= 1000;
 }
 
-void completeTest() {
-    cout
-            << "Czy na pewno chcesz przeprowadzic kompletny test? Nie ma mozliwosci jego przerwania. Wpisz \'Y\' aby przeprowadzic test, lub cokolwiek innego, zeby nie przeprowadzic testu.\n";
-    string s;
-    getline(cin, s);
-    if (s == "Y" || s == "y") {
-        cout
-                << "Podaj nazwe pliku do ktorego zostana zapisane wyniki testow, jesli plik o podanej nazwie istnieje zostanie on nadpisany!\n";
-        getline(cin, s);
-        fstream file;
-        file.open(s, ios::out);
-        /*file<<*/cout<< "Nazwa struktury;Operacja;Rozmiar struktury;Minimalny czas;Sredni czas;Maksymalny czas\n";
-        int structureSizes[] = {10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 25000, 50000, 100000, 250000,
-                                500000, 1000000};
-        double results[1000];
-        double minTime;
-        double maxTime;
-        long double averageTime;
-        int *data;
-        for (int structureSize : structureSizes) {
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new Array(data, structureSize);
-                delete data;
-                int number = randomNumber(INT_MIN, INT_MAX);
-                timerStart();
-                structure->addFront(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Tablica;Dodanie na poczatek;" << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new Array(data, structureSize);
-                delete data;
-                int number = randomNumber(INT_MIN, INT_MAX);
-                timerStart();
-                structure->addBack(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Tablica;Dodanie na koniec;" << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new Array(data, structureSize);
-                delete data;
-                int number = randomNumber(INT_MIN, INT_MAX);
-                unsigned int index = randomNumber(0, structureSize - 1);
-                timerStart();
-                structure->addAnywhere(number, index);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Tablica;Dodanie w dowolne miejsce;" << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new Array(data, structureSize);
-                delete data;
-                timerStart();
-                structure->removeFront();
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Tablica;Usuniecie na poczatku;" << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new Array(data, structureSize);
-                delete data;
-                timerStart();
-                structure->removeBack();
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Tablica;Usuniecie na koncu;" << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new Array(data, structureSize);
-                delete data;
-                unsigned int index = randomNumber(0, structureSize - 1);
-                timerStart();
-                structure->removeAnywhere(index);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Tablica;Usuniecie w dowolnym miejscu;" << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new Array(data, structureSize);
-                unsigned int index = randomNumber(0, structureSize - 1);
-                int number = data[index];
-                delete data;
-                timerStart();
-                structure->findGivenNumber(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Tablica;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize << ";" << minTime
-                 << ";" << averageTime << ";" << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new Array(data, structureSize);
-                unsigned int index = randomNumber(0, structureSize - 1);
-                int number = data[index];
-                delete data;
-                timerStart();
-                structure->removeGivenNumber(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Tablica;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);" << structureSize << ";"
-                 << minTime << ";" << averageTime << ";" << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new Array(data, structureSize);
-                delete data;
-                unsigned int index = randomNumber(0, structureSize - 1);
-                timerStart();
-                structure->getNumberAt(index);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Tablica;Wydobycie elementu na danej pozycji;" << structureSize << ";" << minTime
-                 << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new DoublyLinkedList(data, structureSize);
-                delete data;
-                int number = randomNumber(INT_MIN, INT_MAX);
-                timerStart();
-                structure->addFront(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Lista dwukierunkowa;Dodanie na poczatek;" << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new DoublyLinkedList(data, structureSize);
-                delete data;
-                int number = randomNumber(INT_MIN, INT_MAX);
-                timerStart();
-                structure->addBack(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Lista dwukierunkowa;Dodanie na koniec;" << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new DoublyLinkedList(data, structureSize);
-                delete data;
-                int number = randomNumber(INT_MIN, INT_MAX);
-                unsigned int index = randomNumber(0, structureSize - 1);
-                timerStart();
-                structure->addAnywhere(number, index);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Lista dwukierunkowa;Dodanie w dowolne miejsce;" << structureSize << ";" << minTime << ";"
-                 << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new DoublyLinkedList(data, structureSize);
-                delete data;
-                timerStart();
-                structure->removeFront();
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Lista dwukierunkowa;Usuniecie na poczatku;" << structureSize << ";" << minTime << ";"
-                 << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new DoublyLinkedList(data, structureSize);
-                delete data;
-                timerStart();
-                structure->removeBack();
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Lista dwukierunkowa;Usuniecie na koncu;" << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new DoublyLinkedList(data, structureSize);
-                delete data;
-                unsigned int index = randomNumber(0, structureSize - 1);
-                timerStart();
-                structure->removeAnywhere(index);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Lista dwukierunkowa;Usuniecie w dowolnym miejscu;" << structureSize << ";" << minTime << ";"
-                 << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new DoublyLinkedList(data, structureSize);
-                unsigned int index = randomNumber(0, structureSize - 1);
-                int number = data[index];
-                delete data;
-                timerStart();
-                structure->findGivenNumber(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Lista dwukierunkowa;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize << ";"
-                 << minTime
-                 << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new DoublyLinkedList(data, structureSize);
-                unsigned int index = randomNumber(0, structureSize - 1);
-                int number = data[index];
-                delete data;
-                timerStart();
-                structure->removeGivenNumber(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Lista dwukierunkowa;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);" << structureSize
-                 << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new DoublyLinkedList(data, structureSize);
-                delete data;
-                unsigned int index = randomNumber(0, structureSize - 1);
-                timerStart();
-                structure->getNumberAt(index);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Lista dwukierunkowa;Wydobycie elementu na danej pozycji;" << structureSize << ";" << minTime
-                 << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            //todo kopiec porównanie między dodawaniem 1 elementu a stworzeniem od razu z całej tablicy
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new BinaryHeapMax(data, structureSize);
-                delete data;
-                int number = randomNumber(INT_MIN, INT_MAX);
-                timerStart();
-                structure->add(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Kopiec;Dodanie;" << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new BinaryHeapMax(data, structureSize);
-                delete data;
-                unsigned int index = randomNumber(0, structureSize - 1);
-                timerStart();
-                structure->removeGivenElement(index);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Kopiec;Usuniecie;" << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new BinaryHeapMax(data, structureSize);
-                unsigned int index = randomNumber(0, structureSize - 1);
-                int number = data[index];
-                delete data;
-                timerStart();
-                structure->findGivenNumber(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Kopiec;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize << ";" << minTime
-                 << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new BinaryHeapMax(data, structureSize);
-                unsigned int index = randomNumber(0, structureSize - 1);
-                int number = data[index];
-                delete data;
-                timerStart();
-                structure->removeGivenNumber(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Kopiec;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);" << structureSize << ";"
-                 << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new RedBlackTree(data, structureSize);
-                delete data;
-                int number = randomNumber(INT_MIN, INT_MAX);
-                timerStart();
-                structure->add(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Drzewo czerwono-czarne;Dodanie;" << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new RedBlackTree(data, structureSize);
-                unsigned int index = randomNumber(0, structureSize - 1);
-                int number = data[index];
-                delete data;
-                auto *a = structure->getNodeWithGivenNumber(number);
-                //todo sprawdz czy na pewno dziala
-                timerStart();
-                structure->removeGivenElement(a);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Drzewo czerwono-czarne;Usuniecie;" << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new RedBlackTree(data, structureSize);
-                unsigned int index = randomNumber(0, structureSize - 1);
-                int number = data[index];
-                delete data;
-                timerStart();
-                structure->findGivenNumber(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Drzewo czerwono-czarne;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize << ";"
-                 << minTime
-                 << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-            for (double &result : results) {
-                data = randomData(structureSize);
-                auto *structure = new RedBlackTree(data, structureSize);
-                unsigned int index = randomNumber(0, structureSize - 1);
-                int number = data[index];
-                delete data;
-                timerStart();
-                structure->removeGivenNumber(number);
-                result = timerTime();
-                delete structure;
-            }
-            analyseResults(results, minTime, maxTime, averageTime);
-            /*file<<*/cout<< "Drzewo czerwono-czarne;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);"
-                 << structureSize << ";" << minTime << ";" << averageTime
-                 << ";"
-                 << maxTime << "\n";
-
-
-            //todo drzewo avl jeśli się uda
-//            for (double & result : results) {
+//void completeTest() {
+//    cout
+//            << "Czy na pewno chcesz przeprowadzic kompletny test? Nie ma mozliwosci jego przerwania. Wpisz \'Y\' aby przeprowadzic test, lub cokolwiek innego, zeby nie przeprowadzic testu.\n";
+//    string s;
+//    getline(cin, s);
+//    if (s == "Y" || s == "y") {
+//        cout
+//                << "Podaj nazwe pliku do ktorego zostana zapisane wyniki testow, jesli plik o podanej nazwie istnieje zostanie on nadpisany!\n";
+//        getline(cin, s);
+//        fstream file;
+//        file.open(s, ios::out);
+//        /*file<<*/cout << "Nazwa struktury;Operacja;Rozmiar struktury;Minimalny czas;Sredni czas;Maksymalny czas\n";
+//        int structureSizes[] = {1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000,
+//                                15000, 16000, 17000, 18000, 19000, 20000};
+//        double results[1000];
+//        long double averageTime;
+//        int *data;
+//        for (int structureSize : structureSizes) {
+//            for (double &result : results) {
 //                data = randomData(structureSize);
-//                auto *structure = new AVLTree(data, structureSize);
+//                auto *structure = new Array(data, structureSize);
+//                delete data;
+//                int number = randomNumber(INT_MIN, INT_MAX);
+//                timerStart();
+//                structure->addFront(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Tablica;Dodanie na poczatek;" << structureSize << ";" << averageTime << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new Array(data, structureSize);
+//                delete data;
+//                int number = randomNumber(INT_MIN, INT_MAX);
+//                timerStart();
+//                structure->addBack(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Tablica;Dodanie na koniec;" << structureSize << ";" << averageTime << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new Array(data, structureSize);
+//                delete data;
+//                int number = randomNumber(INT_MIN, INT_MAX);
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                timerStart();
+//                structure->addAnywhere(number, index);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Tablica;Dodanie w dowolne miejsce;" << structureSize << ";" << ";"
+//                           << averageTime
+//                           << ";"
+//                           << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new Array(data, structureSize);
+//                delete data;
+//                timerStart();
+//                structure->removeFront();
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Tablica;Usuniecie na poczatku;" << structureSize << ";" << averageTime << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new Array(data, structureSize);
+//                delete data;
+//                timerStart();
+//                structure->removeBack();
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Tablica;Usuniecie na koncu;" << structureSize << ";" << averageTime << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new Array(data, structureSize);
+//                delete data;
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                timerStart();
+//                structure->removeAnywhere(index);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Tablica;Usuniecie w dowolnym miejscu;" << structureSize << ";" <<  << ";"
+//                           << averageTime
+//                           << ";"
+//                           <<  << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new Array(data, structureSize);
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                int number = data[index];
+//                delete data;
+//                timerStart();
+//                structure->findGivenNumber(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Tablica;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize << ";"
+//                           <<
+//                           << ";" << averageTime << ";" <<  << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new Array(data, structureSize);
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                int number = data[index];
+//                delete data;
+//                timerStart();
+//                structure->removeGivenNumber(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Tablica;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);" << structureSize
+//                           << ";"
+//                           <<  << ";" << averageTime << ";" <<  << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new Array(data, structureSize);
+//                delete data;
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                timerStart();
+//                structure->getNumberAt(index);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Tablica;Wydobycie elementu na danej pozycji;" << structureSize << ";" <<
+//                           << ";" << averageTime
+//                           << ";"
+//                           <<  << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new DoublyLinkedList(data, structureSize);
+//                delete data;
+//                int number = randomNumber(INT_MIN, INT_MAX);
+//                timerStart();
+//                structure->addFront(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Lista dwukierunkowa;Dodanie na poczatek;" << structureSize << ";" <<  << ";"
+//                           << averageTime
+//                           << ";"
+//                           <<  << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new DoublyLinkedList(data, structureSize);
+//                delete data;
+//                int number = randomNumber(INT_MIN, INT_MAX);
+//                timerStart();
+//                structure->addBack(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Lista dwukierunkowa;Dodanie na koniec;" << structureSize << ";" <<  << ";"
+//                           << averageTime
+//                           << ";"
+//                           <<  << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new DoublyLinkedList(data, structureSize);
+//                delete data;
+//                int number = randomNumber(INT_MIN, INT_MAX);
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                timerStart();
+//                structure->addAnywhere(number, index);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Lista dwukierunkowa;Dodanie w dowolne miejsce;" << structureSize << ";" <<  << ";"
+//                           << averageTime
+//                           << ";"
+//                           <<  << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new DoublyLinkedList(data, structureSize);
+//                delete data;
+//                timerStart();
+//                structure->removeFront();
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Lista dwukierunkowa;Usuniecie na poczatku;" << structureSize << ";" <<  << ";"
+//                           << averageTime
+//                           << ";"
+//                           <<  << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new DoublyLinkedList(data, structureSize);
+//                delete data;
+//                timerStart();
+//                structure->removeBack();
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Lista dwukierunkowa;Usuniecie na koncu;" << structureSize << ";" <<  << ";"
+//                           << averageTime
+//                           << ";"
+//                           <<  << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new DoublyLinkedList(data, structureSize);
+//                delete data;
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                timerStart();
+//                structure->removeAnywhere(index);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Lista dwukierunkowa;Usuniecie w dowolnym miejscu;" << structureSize << ";" <<
+//                           << ";"
+//                           << averageTime
+//                           << ";"
+//                           <<  << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new DoublyLinkedList(data, structureSize);
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                int number = data[index];
+//                delete data;
+//                timerStart();
+//                structure->findGivenNumber(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Lista dwukierunkowa;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize
+//                           << ";"
+//                           <<
+//                           << ";" << averageTime
+//                           << ";"
+//                           <<  << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new DoublyLinkedList(data, structureSize);
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                int number = data[index];
+//                delete data;
+//                timerStart();
+//                structure->removeGivenNumber(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Lista dwukierunkowa;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);"
+//                           << structureSize
+//                           << ";" << averageTime << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new DoublyLinkedList(data, structureSize);
+//                delete data;
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                timerStart();
+//                structure->getNumberAt(index);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Lista dwukierunkowa;Wydobycie elementu na danej pozycji;" << structureSize << ";"
+//                           <<
+//                           << ";" << averageTime
+//                           << ";"
+//                           <<  << "\n";
+//
+//            //todo kopiec porównanie między dodawaniem 1 elementu a stworzeniem od razu z całej tablicy
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new BinaryHeapMax(data, structureSize);
 //                delete data;
 //                int number = randomNumber(INT_MIN, INT_MAX);
 //                timerStart();
@@ -1102,14 +959,72 @@ void completeTest() {
 //                result = timerTime();
 //                delete structure;
 //            }
-//            analyseResults(results, minTime, maxTime, averageTime);
-//            /*file<<*/cout<< "Drzewo czerwono-czarne;Dodanie;" << structureSize << ";" << minTime << ";" << averageTime
-//                 << ";"
-//                 << maxTime << "\n";
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Kopiec;Dodanie;" << structureSize << ";" << averageTime << "\n";
 //
-//            for (double & result : results) {
+//            for (double &result : results) {
 //                data = randomData(structureSize);
-//                auto *structure = new AVLTree(data, structureSize);
+//                auto *structure = new BinaryHeapMax(data, structureSize);
+//                delete data;
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                timerStart();
+//                structure->removeGivenElement(index);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Kopiec;Usuniecie;" << structureSize << ";" << averageTime << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new BinaryHeapMax(data, structureSize);
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                int number = data[index];
+//                delete data;
+//                timerStart();
+//                structure->findGivenNumber(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Kopiec;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize << ";"
+//                           <<
+//                           << ";" << averageTime
+//                           << ";"
+//                           <<  << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new BinaryHeapMax(data, structureSize);
+//                unsigned int index = randomNumber(0, structureSize - 1);
+//                int number = data[index];
+//                delete data;
+//                timerStart();
+//                structure->removeGivenNumber(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Kopiec;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);" << structureSize
+//                           << ";"
+//                           << averageTime << "\n";
+////todo drzewo aaaaaaa
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new RedBlackTree(data, structureSize);
+//                delete data;
+//                int number = randomNumber(INT_MIN, INT_MAX);
+//                timerStart();
+//                structure->add(number);
+//                result = timerTime();
+//                delete structure;
+//            }
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Drzewo czerwono-czarne;Dodanie;" << structureSize << ";" << averageTime << "\n";
+//
+//            for (double &result : results) {
+//                data = randomData(structureSize);
+//                auto *structure = new RedBlackTree(data, structureSize);
 //                unsigned int index = randomNumber(0, structureSize - 1);
 //                int number = data[index];
 //                delete data;
@@ -1120,14 +1035,15 @@ void completeTest() {
 //                result = timerTime();
 //                delete structure;
 //            }
-//            analyseResults(results, minTime, maxTime, averageTime);
-//            /*file<<*/cout<< "Drzewo czerwono-czarne;Usuniecie;" << structureSize << ";" << minTime << ";" << averageTime
-//                 << ";"
-//                 << maxTime << "\n";
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Drzewo czerwono-czarne;Usuniecie;" << structureSize << ";" <<  << ";"
+//                           << averageTime
+//                           << ";"
+//                           <<  << "\n";
 //
-//            for (double & result : results) {
+//            for (double &result : results) {
 //                data = randomData(structureSize);
-//                auto *structure = new AVLTree(data, structureSize);
+//                auto *structure = new RedBlackTree(data, structureSize);
 //                unsigned int index = randomNumber(0, structureSize - 1);
 //                int number = data[index];
 //                delete data;
@@ -1136,15 +1052,17 @@ void completeTest() {
 //                result = timerTime();
 //                delete structure;
 //            }
-//            analyseResults(results, minTime, maxTime, averageTime);
-//            /*file<<*/cout<< "Drzewo czerwono-czarne;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize << ";" << minTime
-//                 << ";" << averageTime
-//                 << ";"
-//                 << maxTime << "\n";
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Drzewo czerwono-czarne;Wyszukanie elementu (wiemy ze jest w strukturze);"
+//                           << structureSize << ";"
+//                           <<
+//                           << ";" << averageTime
+//                           << ";"
+//                           <<  << "\n";
 //
-//            for (double & result : results) {
+//            for (double &result : results) {
 //                data = randomData(structureSize);
-//                auto *structure = new AVLTree(data, structureSize);
+//                auto *structure = new RedBlackTree(data, structureSize);
 //                unsigned int index = randomNumber(0, structureSize - 1);
 //                int number = data[index];
 //                delete data;
@@ -1153,16 +1071,83 @@ void completeTest() {
 //                result = timerTime();
 //                delete structure;
 //            }
-//            analyseResults(results, minTime, maxTime, averageTime);
-//            /*file<<*/cout<< "Drzewo czerwono-czarne;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);" << structureSize << ";" << minTime << ";" << averageTime
-//                 << ";"
-//                 << maxTime << "\n";
-
-        }
-        //file.close();
-//            /*file<<*/cout<< distribution(mt) << "\n";
-    }
-}
+//            analyseResults(results, averageTime);
+//            /*file<<*/cout << "Drzewo czerwono-czarne;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);"
+//                           << structureSize << ";" << averageTime << "\n";
+//
+//
+//            //todo drzewo avl jeśli się uda
+////            for (double & result : results) {
+////                data = randomData(structureSize);
+////                auto *structure = new AVLTree(data, structureSize);
+////                delete data;
+////                int number = randomNumber(INT_MIN, INT_MAX);
+////                timerStart();
+////                structure->add(number);
+////                result = timerTime();
+////                delete structure;
+////            }
+////            analyseResults(results, averageTime);
+////            /*file<<*/cout<< "Drzewo czerwono-czarne;Dodanie;" << structureSize << ";" <<  << ";" << averageTime
+////                 << ";"
+////                 <<  << "\n";
+////
+////            for (double & result : results) {
+////                data = randomData(structureSize);
+////                auto *structure = new AVLTree(data, structureSize);
+////                unsigned int index = randomNumber(0, structureSize - 1);
+////                int number = data[index];
+////                delete data;
+////                auto *a = structure->getNodeWithGivenNumber(number);
+////                //todo sprawdz czy na pewno dziala
+////                timerStart();
+////                structure->removeGivenElement(a);
+////                result = timerTime();
+////                delete structure;
+////            }
+////            analyseResults(results, averageTime);
+////            /*file<<*/cout<< "Drzewo czerwono-czarne;Usuniecie;" << structureSize << ";" <<  << ";" << averageTime
+////                 << ";"
+////                 <<  << "\n";
+////
+////            for (double & result : results) {
+////                data = randomData(structureSize);
+////                auto *structure = new AVLTree(data, structureSize);
+////                unsigned int index = randomNumber(0, structureSize - 1);
+////                int number = data[index];
+////                delete data;
+////                timerStart();
+////                structure->findGivenNumber(number);
+////                result = timerTime();
+////                delete structure;
+////            }
+////            analyseResults(results, averageTime);
+////            /*file<<*/cout<< "Drzewo czerwono-czarne;Wyszukanie elementu (wiemy ze jest w strukturze);" << structureSize << ";" <<
+////                 << ";" << averageTime
+////                 << ";"
+////                 <<  << "\n";
+////
+////            for (double & result : results) {
+////                data = randomData(structureSize);
+////                auto *structure = new AVLTree(data, structureSize);
+////                unsigned int index = randomNumber(0, structureSize - 1);
+////                int number = data[index];
+////                delete data;
+////                timerStart();
+////                structure->removeGivenNumber(number);
+////                result = timerTime();
+////                delete structure;
+////            }
+////            analyseResults(results, averageTime);
+////            /*file<<*/cout<< "Drzewo czerwono-czarne;Wyszukanie i usuniecie elementu (wiemy ze jest w strukturze);" << structureSize << ";" <<  << ";" << averageTime
+////                 << ";"
+////                 <<  << "\n";
+//
+//        }
+//        //file.close();
+////            /*file<<*/cout<< distribution(mt) << "\n";
+//    }
+//}
 
 /**
  * todo wiem, że menu jest zrobione w tragiczny sposób, i lepiej by było wykorzystać klasę abstrakcyjną DataStructure oraz polimorfizm aby nie mieć 5 praktycznie tych samych fragmentów kodu, ale już nie miałem czasu aby przebudowywać program, i tak było prościej
@@ -1214,7 +1199,7 @@ void mainLoop() {
                 }
                 break;
             case 2:
-                completeTest();
+//                completeTest();
                 break;
             case 0:
                 run = false;

@@ -6,11 +6,11 @@ using std::cout;
 
 class BinaryHeapMax {
 
-    int *array;
-    int heapSize;
 
 public:
-
+    //todo dodaj potem do private znowu
+    int *array;
+    int heapSize;
     //TODO pomyśleć nad lepszą implementacją
     string cr = "  ";
     string cl = "  ";
